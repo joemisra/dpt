@@ -1,4 +1,4 @@
-## dpt - multifunction electron temple
+# dsp.coffee dpt - multifunction electron temple
 
 **NOTE: This is an early commit, example projects to follow.**
 
