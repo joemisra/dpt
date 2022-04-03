@@ -24,6 +24,11 @@ Additional References
 * https://electro-smith.github.io/DaisySP/index.html
 * https://electro-smith.github.io/libDaisy/index.html
 
+Thx
+* https://github.com/makingsoundmachines
+* https://github.com/thisisnotrocketscience
+* https://github.com/mmalex
+
 BOM
 
 |Designator|Package                                                                                                                                                                                                                 |Quantity                                   |Designation|Supplier and ref      |
