@@ -15,6 +15,11 @@ electrosmith daisy patch submodule based development platform
 * SD card slot.
 * Expander header on the back for +5v, +3v3, SPI, UART, I2C, and USB connections.
 
+Circuits for DAC7554 outputs (op amps etc) and the TRS MIDI circuits are based around portions of 
+https://github.com/plinkysynth/plinky-expander
+
+Additional references at Electrosmith's page for the submodule https://www.electro-smith.com/daisy/patch-sm
+
 **This is primarily an internal project,  if you are interested in supplies/boards please get in touch.**
 
 BOM
