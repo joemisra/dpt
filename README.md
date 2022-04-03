@@ -1,6 +1,7 @@
 # dsp.coffee dpt - multifunction electron temple
 
-**NOTE: This is an early commit, example projects to follow. This is primarily an internal project, a very limited supply of boards+panels are available.**
+**NOTE: This is an early commit, example firmware to follow.
+This is primarily an internal project, a limited supply of boards+panels is available.**
 
 electrosmith daisy patch submodule based development platform
 
