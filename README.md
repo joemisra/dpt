@@ -26,7 +26,7 @@ BOM
 |VRCV4,VRCV2,VRCV3,VRCV6,
 VRCV5,VRCV1,VRCV8,VRCV7|9mm Potentiometer (Alpha / Alps)                                                                                                                                                                                        |8                                          |10K        |                      |
 |D4,D6,D5,D3,D8,D7|3mm LED (Bipolar Red / Green)                                                                                                                                                                                           |6                                          |LED_Dual_Bidirectional|Tayda                 |
-|U_SDCARD1 |VERT_MICROSD_CENTERED                                                                                                                                                                                                   |1                                          |MICRO_SD_CARDCENTERED| https://www.mouser.com/ProductDetail/yamaichi-electronics/pjs008u-3000-0
+|U_SDCARD1 |VERT_MICROSD_CENTERED                                                                                                                                                                                                   |1                                          |MICRO_SD_CARDCENTERED| Mouser 945-PJS008U-3000-0
 or Thonk |
 |U9        |Electrosmith Daisy Patch Submodule                                                                                                                                                                                      |1                                          |ES_DAISY_PATCH_SM_REV1|                      |
 |R36,R35,R18,R16,
