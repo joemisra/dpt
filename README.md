@@ -17,7 +17,7 @@ electrosmith daisy patch submodule based development platform
 * Expander header on the back for +5v, +3v3, SPI, UART, I2C, and USB connections.
 
 Output scaling circuits for DAC7554 and TRS MIDI are based
-around portions of https://github.com/plinkysynth/plinky-expander
+on portions of https://github.com/plinkysynth/plinky-expander
 
 Additional References
 * https://www.electro-smith.com/daisy/patch-sm
