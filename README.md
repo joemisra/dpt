@@ -22,7 +22,12 @@ BOM
 |Id |Designator                                                                                                                                                                                                              |Package                                    |Quantity|Designation           |Supplier and ref|
 |---|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------|--------|----------------------|----------------|
 |1  |LED3,LED4                                                                                                                                                                                                               |3mm LED                                    |2       |LED_3MM_RED           |                |
-|2  |JCVIN7,JCVIN3,JCVOUT6,JCVOUT3,J_MIDIIN1,JCVOUT1,JAUDIO_IN_R1,JCVIN8,JGATEOUT1,JCVIN2,JGATEIN2,JCVOUT5,JGATEOUT2,JCVOUT4,JAUDIO_IN_L1,JGATEIN1,JCVIN1,JCVIN6,JAUDIO_OUT_L1,JCVIN4,J_MIDIOUT1,JCVIN5,JAUDIO_OUT_R1,JCVOUT2|Mono Thonkiconn                            |24      |fuzzySI_thonkiconn    |                |
+|2  |JCVIN7,JCVIN3,JCVOUT6,JCVOUT3,
+J_MIDIIN1,JCVOUT1,JAUDIO_IN_R1,JCVIN8,
+JGATEOUT1,JCVIN2,JGATEIN2,JCVOUT5,
+JGATEOUT2,JCVOUT4,JAUDIO_IN_L1,JGATEIN1,
+JCVIN1,JCVIN6,JAUDIO_OUT_L1,JCVIN4,
+J_MIDIOUT1,JCVIN5,JAUDIO_OUT_R1,JCVOUT2|Mono Thonkiconn                            |24      |fuzzySI_thonkiconn    |                |
 |3  |VRCV4,VRCV2,VRCV3,VRCV6,VRCV5,VRCV1,VRCV8,VRCV7                                                                                                                                                                         |9mm Potentiometer (Alpha / Alps)           |8       |10K                   |                |
 |4  |D4,D6,D5,D3,D8,D7                                                                                                                                                                                                       |3mm LED (Bipolar Red / Green)              |6       |LED_Dual_Bidirectional|Tayda           |
 |5  |U_SDCARD1                                                                                                                                                                                                               |VERT_MICROSD_CENTERED                      |1       |MICRO_SD_CARDCENTERED |                |
