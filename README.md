@@ -1,6 +1,6 @@
 # dsp.coffee dpt - multifunction electron temple
 
-**NOTE: This is an early commit, example projects to follow.**
+**NOTE: This is an early commit, example projects to follow. This is primarily an internal project, a very limited supply of boards+panels are available.**
 
 electrosmith daisy patch submodule based development platform
 
@@ -15,15 +15,13 @@ electrosmith daisy patch submodule based development platform
 * SD card slot.
 * Expander header on the back for +5v, +3v3, SPI, UART, I2C, and USB connections.
 
-Output scaling circuits for DAC7554 outputs and TRS MIDI are based
+Output scaling circuits for DAC7554 and TRS MIDI are based
 around portions of https://github.com/plinkysynth/plinky-expander
 
 Additional References
 * https://www.electro-smith.com/daisy/patch-sm
 * https://electro-smith.github.io/DaisySP/index.html
 * https://electro-smith.github.io/libDaisy/index.html
-
-**This is primarily an internal project,  if you are interested in supplies/boards please get in touch.**
 
 BOM
 
