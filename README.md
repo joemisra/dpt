@@ -1,5 +1,7 @@
 ### dpt - multifunction electron temple
 
+**NOTE: This is an early commit, example projects to follow.**
+
 electrosmith daisy patch submodule based development platform
 
 * 8 pots normalled to +5V.
@@ -13,7 +15,7 @@ electrosmith daisy patch submodule based development platform
 * SD card slot.
 * Has an expander header on the back for +5v, +3v3, SPI, UART, I2C, and USB connections.
 
-**This is primarily an internal project, you have to be comfortable with hacking firmware to get the most out of it and I can't guarantee support. If you are interested in supplies/boards please get in touch.**
+**This is primarily an internal project,  if you are interested in supplies/boards please get in touch.**
 
 
 ![dpt](dpt.jpg)
