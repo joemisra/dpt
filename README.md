@@ -9,7 +9,7 @@ electrosmith daisy patch submodule based development platform
 * 8 CV in, this breaks normalled connection and pot acts as an attenuator.
 * 2 gate in
 * 2 gate out
-* High fidelity stereo in/out (Daisy Patch Submodule uses the WM8731 codec).
+* High fidelity stereo in/out (Daisy Patch Submodule uses the PCM3080 codec).
 * 2 12-bit CV out from Daisy Patch Submodule, scaled to -5v to 10v
 * 4 12-bit CV (or lofi audio w/ some hacking) from external DAC7554, scaled to -7v to 7v.
 * TRS MIDI in/out (in is auto-sensing for type a/b)
