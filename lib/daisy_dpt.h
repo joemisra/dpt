@@ -232,7 +232,8 @@ namespace dpt
          *  \todo Add Calibration to CV Outputs
          * 
          *  \param channel desired channel to update. 0 is both, otherwise 1 or 2 are valid.
-         *  \param volage value in Volts that you'd like to write to the DAC. The valid range is 0-5V.
+         *  \param volage value in Volts that you'd like to write to the DAC. The valid range is -5-10V.
+         *  \param raw if true, voltage value is passed directly to the dac [0-4095]
          */
         void WriteCvOut(const int channel, float voltage, bool raw);
 
@@ -241,7 +242,11 @@ namespace dpt
          *  
          *  \todo Add Calibration to CV Outputs
          * 
-         *  \param voltage array of voltages that you'd like to write to the DAC. The valid range is -5 to 5.
+         *  \param a v for output 1 
+         *  \param b v for output 2
+         *  \param c v for output 3
+         *  \param d v for output 4
+         *  \param raw if true, abcd are passed directly to the dac [0-4095]
          */
         void WriteCvOutExp(float a, float b, float c, float d, bool raw);
 
