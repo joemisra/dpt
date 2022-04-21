@@ -156,7 +156,7 @@ namespace dpt
         /** Based on a 0-5V output with a 0-4095 12-bit DAC */
         static inline uint16_t VoltageToCode(float input)
         {
-            float pre = input * 819.f;
+            float pre = (input + 5.0) * 273.f;
             if(pre > 4095.f)
                 pre = 4095.f;
             else if(pre < 0.f)
@@ -164,12 +164,12 @@ namespace dpt
             return (uint16_t)pre;
         }
 
-        inline void WriteCvOut(int channel, float voltage)
+        inline void WriteCvOut(int channel, float voltage, bool raw)
         {
             if(channel == 0 || channel == 1)
-                dac_output_[0] = VoltageToCode(voltage);
+                dac_output_[0] = raw ? (uint16_t) voltage : VoltageToCode(voltage);
             if(channel == 0 || channel == 2)
-                dac_output_[1] = VoltageToCode(voltage);
+                dac_output_[1] = raw ? (uint16_t) voltage : VoltageToCode(voltage);
         }
 
         size_t    dac_buffer_size_;
@@ -231,7 +231,7 @@ namespace dpt
         }
     }
 
-    /** Actual DPT implementation 
+/** Actual DPT implementation 
  *  With the pimpl model in place, we can/should probably
  *  move the rest of the implementation to the Impl class
  */
@@ -518,18 +518,35 @@ namespace dpt
 
     void DPT::StopDac() { pimpl_->StopDac(); }
 
-    void DPT::WriteCvOut(const int channel, float voltage)
+    void DPT::WriteCvOut(const int channel, float voltage, bool raw)
     {
-        pimpl_->WriteCvOut(channel, voltage);
+        pimpl_->WriteCvOut(channel, voltage, raw);
     }
 
-    void DPT::WriteCvOutExp(float a, float b, float c, float d)
+    // Scale -7v to 7v
+    uint16_t DPT::VoltageToCodeExp(float input)
+    {
+        // Outputs are inverted, so have to flip the literal voltage
+        float pre = abs(((input + 7.0) / 14.0 * 4095.0) - 4095);
+
+        if(pre > 4095.f)
+            pre = 4095.f;
+        else if(pre < 0.f)
+            pre = 0.f;
+
+        return (uint16_t)pre;
+    }
+
+    void DPT::WriteCvOutExp(float a, float b, float c, float d, bool raw)
     {
         uint16_t gogo[4];
-        gogo[0] = DSY_CLAMP(a, 0, 4095);
-        gogo[1] = DSY_CLAMP(b, 0, 4095);
-        gogo[2] = DSY_CLAMP(c, 0, 4095);
-        gogo[3] = DSY_CLAMP(d, 0, 4095);
+
+        // Outputs are inverted, so have to flip the inputs 
+        gogo[0] = abs(raw ? (uint16_t) a - 4095 : VoltageToCodeExp(a));
+        gogo[1] = abs(raw ? (uint16_t) b - 4095 : VoltageToCodeExp(b));
+        gogo[2] = abs(raw ? (uint16_t) c - 4095 : VoltageToCodeExp(c));
+        gogo[3] = abs(raw ? (uint16_t) d - 4095 : VoltageToCodeExp(d));
+
         dac_exp.Write(gogo);
     }
 

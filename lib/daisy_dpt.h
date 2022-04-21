@@ -23,6 +23,14 @@ namespace dpt
      * 
      *  patch.GetAdcValue(patch_sm::CV_1);
      */
+    enum class MappingFmap
+    {
+        LINEAR,
+        LINEAR_INVERTED,
+        EXP,
+        LOG,
+    };
+
     enum
     {
         CV_1 = 0,
@@ -47,6 +55,50 @@ namespace dpt
         CV_OUT_1,
         CV_OUT_2,
     };
+
+    inline float fmin(float a, float b)
+    {
+        float r;
+    #ifdef __arm__
+        asm("vminnm.f32 %[d], %[n], %[m]" : [d] "=t"(r) : [n] "t"(a), [m] "t"(b) :);
+    #else
+        r = (a < b) ? a : b;
+    #endif // __arm__
+        return r;
+    }
+
+    inline float fmax(float a, float b)
+    {
+        float r;
+    #ifdef __arm__
+        asm("vmaxnm.f32 %[d], %[n], %[m]" : [d] "=t"(r) : [n] "t"(a), [m] "t"(b) :);
+    #else
+        r = (a > b) ? a : b;
+    #endif // __arm__
+        return r;
+    }
+
+    inline float fclamp(float in, float min, float max)
+    {
+        return fmin(fmax(in, min), max);
+    }
+
+    inline float
+    fmap(float in, float min, float max, MappingFmap curve = MappingFmap::LINEAR)
+    {
+        switch(curve)
+        {
+            case MappingFmap::EXP:
+                return fclamp(min + (in * in) * (max - min), min, max);
+            case MappingFmap::LOG:
+            {
+                const float a = 1.f / log10f(max / min);
+                return fclamp(min * powf(10, in / a), min, max);
+            }
+            case MappingFmap::LINEAR:
+            default: return fclamp(min + in * (max - min), min, max);
+        }
+    }
 
 
     /** @brief Board support file for DPT hardware
@@ -182,7 +234,7 @@ namespace dpt
          *  \param channel desired channel to update. 0 is both, otherwise 1 or 2 are valid.
          *  \param volage value in Volts that you'd like to write to the DAC. The valid range is 0-5V.
          */
-        void WriteCvOut(const int channel, float voltage);
+        void WriteCvOut(const int channel, float voltage, bool raw);
 
         /** Sets expander channels to the target voltage + write. 
          *  This may not be 100% accurate without calibration. 
@@ -191,7 +243,11 @@ namespace dpt
          * 
          *  \param voltage array of voltages that you'd like to write to the DAC. The valid range is -5 to 5.
          */
-        void WriteCvOutExp(float a, float b, float c, float d);
+        void WriteCvOutExp(float a, float b, float c, float d, bool raw);
+
+        
+        /** Convert -8 to 8 range to 4096 */
+        uint16_t VoltageToCodeExp(float input);
 
         /** Here are some wrappers around libDaisy Static functions 
          *  to provide simpler syntax to those who prefer it. */
