@@ -10,7 +10,7 @@
         "-d",
         "${workspaceRoot}"
       ],
-      "executable": "${workspaceRoot}/build/i2cleadertest.elf",
+      "executable": "${workspaceRoot}/build/MegaBasic.elf",
       "interface": "swd",
       "name": "Cortex Debug",
       "openOCDLaunchCommands": [
@@ -23,10 +23,11 @@
         "enable breakpoint",
         "monitor reset"
       ],
+      "postLaunchCommands": [
+        "monitor arm semihosting enable"
+      ],
       "request": "launch",
-      "runToMain": false,
       "servertype": "openocd",
-      "showDevDebugOutput": true,
       "svdFile": "${workspaceRoot}/.vscode/STM32H750x.svd",
       "type": "cortex-debug"
     }

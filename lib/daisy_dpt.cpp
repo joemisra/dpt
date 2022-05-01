@@ -156,7 +156,7 @@ namespace dpt
         /** Based on a 0-5V output with a 0-4095 12-bit DAC */
         static inline uint16_t VoltageToCode(float input)
         {
-            float pre = input * 819.f;
+            float pre = (input + 5.0) * 273.f;
             if(pre > 4095.f)
                 pre = 4095.f;
             else if(pre < 0.f)
@@ -164,12 +164,12 @@ namespace dpt
             return (uint16_t)pre;
         }
 
-        inline void WriteCvOut(int channel, float voltage)
+        inline void WriteCvOut(int channel, float voltage, bool raw)
         {
             if(channel == 0 || channel == 1)
-                dac_output_[0] = VoltageToCode(voltage);
+                dac_output_[0] = raw ? (uint16_t) voltage : VoltageToCode(voltage);
             if(channel == 0 || channel == 2)
-                dac_output_[1] = VoltageToCode(voltage);
+                dac_output_[1] = raw ? (uint16_t) voltage : VoltageToCode(voltage);
         }
 
         size_t    dac_buffer_size_;
@@ -231,7 +231,7 @@ namespace dpt
         }
     }
 
-    /** Actual DPT implementation 
+/** Actual DPT implementation 
  *  With the pimpl model in place, we can/should probably
  *  move the rest of the implementation to the Impl class
  */
@@ -373,17 +373,28 @@ namespace dpt
     }
 
     void DPT::InitTimer() {
+        uint32_t tim_base_freq, target_freq, period;
+
         tim5.Instance = ((TIM_TypeDef *)TIM5_BASE);
         tim5.Init.CounterMode = TIM_COUNTERMODE_UP;
+        //tim5.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+
+        tim_base_freq = 480000000; // 100MHz (or 120MHz) depending on CPU Freq.
+        target_freq = 48000;
+        period = tim_base_freq / target_freq;
+        tim5.Init.Period    = period;
+        tim5.Init.Prescaler = 1;
 
         // Default to lowest prescalar
         //tim5.Init.Prescaler = 0xBB7F;
-        tim5.Init.Prescaler = 0x2B11 / 2;
-        //tim5.Init.Prescaler = 0x0000;
+        //uint32_t _val = 0xBB7F / 8; // 47.999 - 480 MHz / 48000 = 10 kHz -> 1 tick every 0.0001 sec
+        //tim5.Init.Prescaler = _val;
+        // tim5_.SetPrescaler(_val);
+        // tim5.Init.Prescaler = 0x0000;
 
         // Default to longest period (16-bit timers handled separaately for clarity,
         // though 16-bit timers extra bits are probably don't care.
-        tim5.Init.Period = 0x00000001;
+        //tim5.Init.Period = 0x00000001;
         //tim5.Init.AutoReloadPreload = 0xF0000;
 
         HAL_TIM_Base_Init(&tim5);
@@ -518,18 +529,35 @@ namespace dpt
 
     void DPT::StopDac() { pimpl_->StopDac(); }
 
-    void DPT::WriteCvOut(const int channel, float voltage)
+    void DPT::WriteCvOut(const int channel, float voltage, bool raw)
     {
-        pimpl_->WriteCvOut(channel, voltage);
+        pimpl_->WriteCvOut(channel, voltage, raw);
     }
 
-    void DPT::WriteCvOutExp(float a, float b, float c, float d)
+    // Scale -7v to 7v
+    uint16_t DPT::VoltageToCodeExp(float input)
+    {
+        // Outputs are inverted, so have to flip the literal voltage
+        float pre = abs(((input + 7.0) / 14.0 * 4095.0) - 4095);
+
+        if(pre > 4095.f)
+            pre = 4095.f;
+        else if(pre < 0.f)
+            pre = 0.f;
+
+        return (uint16_t)pre;
+    }
+
+    void DPT::WriteCvOutExp(float a, float b, float c, float d, bool raw)
     {
         uint16_t gogo[4];
-        gogo[0] = DSY_CLAMP(a, 0, 4095);
-        gogo[1] = DSY_CLAMP(b, 0, 4095);
-        gogo[2] = DSY_CLAMP(c, 0, 4095);
-        gogo[3] = DSY_CLAMP(d, 0, 4095);
+
+        // Outputs are inverted, so have to flip the inputs 
+        gogo[0] = abs(raw ? (uint16_t) a - 4095 : VoltageToCodeExp(a));
+        gogo[1] = abs(raw ? (uint16_t) b - 4095 : VoltageToCodeExp(b));
+        gogo[2] = abs(raw ? (uint16_t) c - 4095 : VoltageToCodeExp(c));
+        gogo[3] = abs(raw ? (uint16_t) d - 4095 : VoltageToCodeExp(d));
+
         dac_exp.Write(gogo);
     }
 
