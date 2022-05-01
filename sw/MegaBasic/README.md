@@ -1,3 +1,3 @@
 # MegaBasic
 
-Morphing MIDI polysynth w/ the 4 12-bit outputs
+Morphing MIDI polysynth w/ DPT's 4 12-bit outputs.
