@@ -12,7 +12,7 @@ electrosmith daisy patch submodule based development platform
 * High fidelity stereo in/out (Daisy Patch Submodule uses the PCM3080 codec).
 * 2 12-bit CV out from Daisy Patch Submodule, scaled to -5v to 10v
 * 4 12-bit CV (or lofi audio w/ some hacking) from external DAC7554, scaled to -7v to 7v.
-* TRS MIDI in/out (in is auto-sensing for type a/b)
+* TRS MIDI in/out (midi in uses lpzw auto-sensing circuit for type a/b)
 * SD card slot.
 * Expander header on the back for +5v, +3v3, SPI, UART, I2C, and USB connections.
 
