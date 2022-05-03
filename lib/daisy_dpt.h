@@ -297,6 +297,29 @@ namespace dpt
             Log::StartLog(wait_for_pc);
         }
 
+        // midi helping stuff yoinked from makingsoundmachines @ electrosmith forum
+        void MIDISendNoteOn(uint8_t channel, uint8_t note, uint8_t velocity)
+        {
+            uint8_t data[3] = {0};
+
+            data[0] = (channel & 0x0F) + 0x90; // limit channel byte, add status byte
+            data[1] = note & 0x7F;             // remove MSB on data
+            data[2] = velocity & 0x7F;
+
+            midi.SendMessage(data, 3);
+        }
+
+        void MIDISendNoteOff(uint8_t channel, uint8_t note, uint8_t velocity)
+        {
+            uint8_t data[3] = {0};
+
+            data[0] = (channel & 0x0F) + 0x80; // limit channel byte, add status byte
+            data[1] = note & 0x7F;             // remove MSB on data
+            data[2] = velocity & 0x7F;
+
+            midi.SendMessage(data, 3);
+        }
+
         /** @brief Tests entirety of SDRAM for validity 
          *         This will wipe contents of SDRAM when testing. 
          * 

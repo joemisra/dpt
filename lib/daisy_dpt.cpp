@@ -373,17 +373,28 @@ namespace dpt
     }
 
     void DPT::InitTimer() {
+        uint32_t tim_base_freq, target_freq, period;
+
         tim5.Instance = ((TIM_TypeDef *)TIM5_BASE);
         tim5.Init.CounterMode = TIM_COUNTERMODE_UP;
+        //tim5.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+
+        tim_base_freq = 480000000; // 100MHz (or 120MHz) depending on CPU Freq.
+        target_freq = 48000;
+        period = tim_base_freq / target_freq;
+        tim5.Init.Period    = period;
+        tim5.Init.Prescaler = 1;
 
         // Default to lowest prescalar
         //tim5.Init.Prescaler = 0xBB7F;
-        tim5.Init.Prescaler = 0x2B11 / 2;
-        //tim5.Init.Prescaler = 0x0000;
+        //uint32_t _val = 0xBB7F / 8; // 47.999 - 480 MHz / 48000 = 10 kHz -> 1 tick every 0.0001 sec
+        //tim5.Init.Prescaler = _val;
+        // tim5_.SetPrescaler(_val);
+        // tim5.Init.Prescaler = 0x0000;
 
         // Default to longest period (16-bit timers handled separaately for clarity,
         // though 16-bit timers extra bits are probably don't care.
-        tim5.Init.Period = 0x00000001;
+        //tim5.Init.Period = 0x00000001;
         //tim5.Init.AutoReloadPreload = 0xF0000;
 
         HAL_TIM_Base_Init(&tim5);
