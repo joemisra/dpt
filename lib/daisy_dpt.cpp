@@ -1,9 +1,13 @@
-#include "dev/DAC7554.h"
 #include "daisy_dpt.h"
+
+#include "dev/DAC7554.h"
+
 #include "util/hal_map.h"
 #include "sys/system.h"
 #include "per/gpio.h"
 #include "per/tim.h"
+
+
 #include <vector>
 
 #define DSY_MIN(in, mn) (in < mn ? in : mn)
@@ -211,7 +215,6 @@ namespace dpt
         dac_running_ = true;
     }
 
-
     void DPT::Impl::StopDac()
     {
         dac_.Stop();
@@ -240,7 +243,6 @@ namespace dpt
     {
         /** Assign pimpl pointer */
         pimpl_ = &patch_sm_hw;
-
         /** Initialize the MCU and clock tree */
         System::Config syscfg;
         syscfg.Boost();
@@ -250,7 +252,6 @@ namespace dpt
             syscfg.skip_clocks = true;
 
         system.Init(syscfg);
-
         /** Memories */
         if(memory == System::MemoryRegion::INTERNAL_FLASH)
         {
@@ -299,7 +300,7 @@ namespace dpt
         codec.Init(i2c2);
 
         AudioHandle::Config audio_config;
-        audio_config.blocksize  = 4;
+        audio_config.blocksize  = 48;
         audio_config.samplerate = SaiHandle::Config::SampleRate::SAI_48KHZ;
         audio_config.postgain   = 1.f;
         audio.Init(audio_config, sai_1_handle);
@@ -362,7 +363,7 @@ namespace dpt
         dac_exp.Init();
 
         /** Init MIDI i/o */
-        InitMidi();
+        //InitMidi();
 
         /** Start any background stuff */
         StartAdc();
@@ -370,21 +371,33 @@ namespace dpt
 
         /** Init Timer */
         InitTimer();
+
     }
 
     void DPT::InitTimer() {
         uint32_t tim_base_freq, target_freq, period;
 
-        tim5.Instance = ((TIM_TypeDef *)TIM5_BASE);
-        tim5.Init.CounterMode = TIM_COUNTERMODE_UP;
-        //tim5.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+        /*
+        TimerHandle th;
+        TimerHandle::Config config;
+        config.periph = TimerHandle::Config::Peripheral::TIM_5;
+        config.dir = TimerHandle::Config::CounterDir::UP;
+        config.enable_irq = true;
+        th.SetPrescaler(1);
+        */
 
+        
         tim_base_freq = 480000000; // 100MHz (or 120MHz) depending on CPU Freq.
         target_freq = 48000;
         period = tim_base_freq / target_freq;
+
+        tim5.Instance = ((TIM_TypeDef *)TIM5_BASE);
+        tim5.Init.CounterMode = TIM_COUNTERMODE_UP;
+        tim5.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+
         tim5.Init.Period    = period;
         tim5.Init.Prescaler = 1;
-
+        
         // Default to lowest prescalar
         //tim5.Init.Prescaler = 0xBB7F;
         //uint32_t _val = 0xBB7F / 8; // 47.999 - 480 MHz / 48000 = 10 kHz -> 1 tick every 0.0001 sec
@@ -397,9 +410,11 @@ namespace dpt
         //tim5.Init.Period = 0x00000001;
         //tim5.Init.AutoReloadPreload = 0xF0000;
 
+        //th.Init(config);
+        //th.Start();
+
         HAL_TIM_Base_Init(&tim5);
 
-        
         TIM_ClockConfigTypeDef  sClockSourceConfig = {0};
         TIM_MasterConfigTypeDef sMasterConfig      = {0};
         sClockSourceConfig.ClockSource             = TIM_CLOCKSOURCE_INTERNAL;
@@ -418,15 +433,25 @@ namespace dpt
         
         HAL_NVIC_SetPriority(TIM5_IRQn, 0x0, 0);
         HAL_NVIC_EnableIRQ(TIM5_IRQn);
+        
         HAL_TIM_IRQHandler(&tim5);
         tim5.Instance->DIER = TIM_DIER_UIE;
     }
 
     void DPT::InitMidi() {
+        MidiUsbHandler::Config usb_midi_config;
+        usb_midi_config.transport_config.periph = MidiUsbTransport::Config::Periph::INTERNAL;
+
+        MidiUsbHandler::Config midi_cfg;
+        midi_cfg.transport_config.periph = MidiUsbTransport::Config::INTERNAL;
+        usb_midi.Init(midi_cfg);
+
+        /*
         MidiUartHandler::Config midi_config;
         midi_config.transport_config.rx = DPT::A9;
         midi_config.transport_config.tx = DPT::A8;
         midi.Init(midi_config);
+        */
     }
 
     void DPT::StartAudio(AudioHandle::AudioCallback cb)
@@ -632,5 +657,5 @@ namespace dpt
         return fail_cnt == 0;
     }
 
-} // namespace patch_sm
+} // namespace dpt
 } // namespace daisy

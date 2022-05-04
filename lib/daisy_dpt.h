@@ -1,14 +1,10 @@
 #pragma once
 
 #include "daisy.h"
+
 #ifndef DSY_DEV_DAC_7554_H
 #include "dev/DAC7554.h"
 #endif
-
-#include "util/hal_map.h"
-#include "sys/system.h"
-#include "per/gpio.h"
-#include "per/tim.h"
 
 namespace daisy
 {
@@ -356,6 +352,7 @@ namespace dpt
         Pcm3060     codec;
         DacHandle   dac;
         MidiUartHandler midi;
+        MidiUsbHandler usb_midi;
 
         Dac7554     dac_exp;
         
