@@ -7,15 +7,14 @@
 #include "per/gpio.h"
 #include "per/tim.h"
 
-
 #include <vector>
 
 #define DSY_MIN(in, mn) (in < mn ? in : mn)
 #define DSY_MAX(in, mx) (in > mx ? in : mx)
 #define DSY_CLAMP(in, mn, mx) (DSY_MIN(DSY_MAX(in, mn), mx))
 
-#define EXTERNAL_SDRAM_SECTION __attribute__((section(".sdram_bss")))
-uint8_t EXTERNAL_SDRAM_SECTION buff[1024];
+//#define EXTERNAL_SDRAM_SECTION __attribute__((section(".sdram_bss")))
+//uint8_t EXTERNAL_SDRAM_SECTION buff[1024];
 
 namespace daisy
 {
@@ -200,8 +199,7 @@ namespace dpt
         dac_config.buff_state        = DacHandle::BufferState::ENABLED;
         dac_config.target_samplerate = 48000;
         dac_.Init(dac_config);
-        
-        dsy_spi_global_init();
+        __HAL_RCC_TIM6_CLK_ENABLE();
     }
 
     void DPT::Impl::StartDac(DacHandle::DacCallback callback)
@@ -357,101 +355,58 @@ namespace dpt
         gate_out_2.pin  = B5;
         dsy_gpio_init(&gate_out_2);
 
-        /** DAC init */
         pimpl_->InitDac();
-
+        //dsy_spi_global_init();
         dac_exp.Init();
 
         /** Init MIDI i/o */
         //InitMidi();
+
+        /** DAC init */
 
         /** Start any background stuff */
         StartAdc();
         StartDac();
 
         /** Init Timer */
-        InitTimer();
-
     }
 
-    void DPT::InitTimer() {
-        uint32_t tim_base_freq, target_freq, period;
-
-        /*
-        TimerHandle th;
-        TimerHandle::Config config;
-        config.periph = TimerHandle::Config::Peripheral::TIM_5;
-        config.dir = TimerHandle::Config::CounterDir::UP;
-        config.enable_irq = true;
-        th.SetPrescaler(1);
-        */
-
-        
-        tim_base_freq = 480000000; // 100MHz (or 120MHz) depending on CPU Freq.
+    void DPT::InitTimer(daisy::TimerHandle::PeriodElapsedCallback cb, void *data) {
+        daisy::TimerHandle tim5_;
+        daisy::TimerHandle::Config timcfg;
+        uint32_t target_freq;
         target_freq = 48000;
-        period = tim_base_freq / target_freq;
+        timcfg.periph = daisy::TimerHandle::Config::Peripheral::TIM_5;
+        timcfg.dir = daisy::TimerHandle::Config::CounterDir::UP;
+        auto tim_base_freq = daisy::System::GetPClk2Freq();
+        auto tim_target_freq = target_freq;
+        auto tim_period = tim_base_freq / tim_target_freq;
+        timcfg.period = tim_period;
+        timcfg.enable_irq = true;
+        tim5_.Init(timcfg);
+        tim5_.SetCallback(cb, data);
+        /** Start Callback */
 
-        tim5.Instance = ((TIM_TypeDef *)TIM5_BASE);
-        tim5.Init.CounterMode = TIM_COUNTERMODE_UP;
-        tim5.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+        tim5_.Start();
 
-        tim5.Init.Period    = period;
-        tim5.Init.Prescaler = 1;
-        
-        // Default to lowest prescalar
-        //tim5.Init.Prescaler = 0xBB7F;
-        //uint32_t _val = 0xBB7F / 8; // 47.999 - 480 MHz / 48000 = 10 kHz -> 1 tick every 0.0001 sec
-        //tim5.Init.Prescaler = _val;
-        // tim5_.SetPrescaler(_val);
-        // tim5.Init.Prescaler = 0x0000;
-
-        // Default to longest period (16-bit timers handled separaately for clarity,
-        // though 16-bit timers extra bits are probably don't care.
-        //tim5.Init.Period = 0x00000001;
-        //tim5.Init.AutoReloadPreload = 0xF0000;
-
-        //th.Init(config);
-        //th.Start();
-
-        HAL_TIM_Base_Init(&tim5);
-
-        TIM_ClockConfigTypeDef  sClockSourceConfig = {0};
-        TIM_MasterConfigTypeDef sMasterConfig      = {0};
-        sClockSourceConfig.ClockSource             = TIM_CLOCKSOURCE_INTERNAL;
-        if(HAL_TIM_ConfigClockSource(&tim5, &sClockSourceConfig)
-        != HAL_OK)
-        {
-            //Error_Handler();
-        }
-        sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-        sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
-        if(HAL_TIMEx_MasterConfigSynchronization(&tim5, &sMasterConfig)
-        != HAL_OK)
-        {
-            //Error_Handler();
-        }
-        
-        HAL_NVIC_SetPriority(TIM5_IRQn, 0x0, 0);
-        HAL_NVIC_EnableIRQ(TIM5_IRQn);
-        
-        HAL_TIM_IRQHandler(&tim5);
-        tim5.Instance->DIER = TIM_DIER_UIE;
+        //tim5.Instance = ((TIM_TypeDef *)TIM5_BASE);
+        //tim5.Instance->DIER = TIM_DIER_UIE;
     }
 
     void DPT::InitMidi() {
+        /*
         MidiUsbHandler::Config usb_midi_config;
         usb_midi_config.transport_config.periph = MidiUsbTransport::Config::Periph::INTERNAL;
 
         MidiUsbHandler::Config midi_cfg;
         midi_cfg.transport_config.periph = MidiUsbTransport::Config::INTERNAL;
         usb_midi.Init(midi_cfg);
+        */
 
-        /*
         MidiUartHandler::Config midi_config;
         midi_config.transport_config.rx = DPT::A9;
         midi_config.transport_config.tx = DPT::A8;
         midi.Init(midi_config);
-        */
     }
 
     void DPT::StartAudio(AudioHandle::AudioCallback cb)

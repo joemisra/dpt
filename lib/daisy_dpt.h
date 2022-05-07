@@ -125,7 +125,7 @@ namespace dpt
 
         void InitMidi();
     
-        void InitTimer();
+        void InitTimer(daisy::TimerHandle::PeriodElapsedCallback cb, void *data);
 
         /** Starts a non-interleaving audio callback */
         void StartAudio(AudioHandle::AudioCallback cb);
@@ -375,7 +375,6 @@ namespace dpt
         static const dsy_gpio_pin D6, D7, D8, D9, D10;
         class Impl;
 
-        TimerHandle tim5_;
         TIM_HandleTypeDef tim5;
 
       private:
