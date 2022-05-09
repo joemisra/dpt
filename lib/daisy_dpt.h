@@ -376,6 +376,7 @@ namespace dpt
         class Impl;
 
         TIM_HandleTypeDef tim5;
+        TimerHandle tim5_;
 
       private:
         using Log = Logger<LOGGER_INTERNAL>;

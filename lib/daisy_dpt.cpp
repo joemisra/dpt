@@ -199,7 +199,6 @@ namespace dpt
         dac_config.buff_state        = DacHandle::BufferState::ENABLED;
         dac_config.target_samplerate = 48000;
         dac_.Init(dac_config);
-        __HAL_RCC_TIM6_CLK_ENABLE();
     }
 
     void DPT::Impl::StartDac(DacHandle::DacCallback callback)
@@ -356,7 +355,7 @@ namespace dpt
         dsy_gpio_init(&gate_out_2);
 
         pimpl_->InitDac();
-        //dsy_spi_global_init();
+
         dac_exp.Init();
 
         /** Init MIDI i/o */
@@ -375,7 +374,7 @@ namespace dpt
         daisy::TimerHandle tim5_;
         daisy::TimerHandle::Config timcfg;
         uint32_t target_freq;
-        target_freq = 48000;
+        target_freq = 22050;
         timcfg.periph = daisy::TimerHandle::Config::Peripheral::TIM_5;
         timcfg.dir = daisy::TimerHandle::Config::CounterDir::UP;
         auto tim_base_freq = daisy::System::GetPClk2Freq();
@@ -384,13 +383,19 @@ namespace dpt
         timcfg.period = tim_period;
         timcfg.enable_irq = true;
         tim5_.Init(timcfg);
+        HAL_NVIC_SetPriority(TIM5_IRQn, 0x0, 0x0);
         tim5_.SetCallback(cb, data);
-        /** Start Callback */
 
         tim5_.Start();
 
+        TIM5->PSC = 1;
+        TIM5->DIER = TIM_DIER_UIE;
         //tim5.Instance = ((TIM_TypeDef *)TIM5_BASE);
-        //tim5.Instance->DIER = TIM_DIER_UIE;
+        //tim5.Init.CounterMode = TIM_COUNTERMODE_UP;
+        //tim5.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+        //tim5.Init.Prescaler = 1;
+
+        //HAL_TIM_Base_Init(&tim5);
     }
 
     void DPT::InitMidi() {

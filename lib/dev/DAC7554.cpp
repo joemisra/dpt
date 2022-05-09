@@ -50,7 +50,7 @@ using namespace std;
 //#define DMA_BUFF __attribute__((section(".sdram_bss")))
 //uint8_t DMA_BUFFER_MEM_SECTION myBuffer[100];
 #define EXTERNAL_SDRAM_SECTION __attribute__((section(".sdram_bss")))
-uint8_t DMA_BUFFER_MEM_SECTION *myBuffer;
+//uint8_t DMA_BUFFER_MEM_SECTION *myBuffer;
 
 class Dac7554Data {
     public:
@@ -80,10 +80,12 @@ static dsy_gpio          pin_sync;
 static Dac7554_t         Dac7554_;
 static SpiHandle::Config spi_config;
 
-static void TxCpltCallback(void* context, SpiHandle::Result result) {
-    Dac7554 *ya = (Dac7554 *)context;
+void TxCpltCallback(void* context, daisy::SpiHandle::Result result) {
+    return;
+}
 
-    ya->lock = false;
+void TxStartCallback(void* context) {
+    return;
 }
 
 void Dac7554::Init()
@@ -97,7 +99,7 @@ void Dac7554::Init()
 
     spi_config.periph         = SpiHandle::Config::Peripheral::SPI_2;
     spi_config.mode           = SpiHandle::Config::Mode::MASTER;
-    spi_config.direction      = SpiHandle::Config::Direction::TWO_LINES_TX_ONLY;
+    spi_config.direction      = SpiHandle::Config::Direction::TWO_LINES;
     spi_config.datasize       = 8;
     spi_config.clock_polarity = SpiHandle::Config::ClockPolarity::HIGH;
     spi_config.clock_phase    = SpiHandle::Config::ClockPhase::ONE_EDGE;
@@ -111,8 +113,6 @@ void Dac7554::Init()
 
     h_spi.Init(spi_config);
 
-    myBuffer = new uint8_t[64];
-
     Dac7554_.Initialized = 1;
 }
 
@@ -120,46 +120,18 @@ void Dac7554::Write(uint16_t gogo[4])
 {
     //uint16_t cmd = (2 << 14) | (address << 12) | data;
 
-    if(!dac_ready) {
-        for(int i = 0; i < 4; i++)
-            _values[i] = gogo[i];
-        dac_ready = true;
-    }
-
-    /*
-    buff16[1] = cmd;
-    buff16[2] = cmd;
-    buff16[3] = cmd;
-    */
-
-
-    // Not using?
-
-    /*
-    if(buff_index > 64)
-        buff_index = 0;
-
-    buff[buff_index] = (cmd >> 8) & 0xff;
-    buff[buff_index + 1] = cmd & 0xff;
-    */
-
-    //buff[(address * 2)] = (cmd >> 8) & 0xff;
-    //buff[(address * 2)+ 1] = cmd & 0xff;
+    for(int i = 0; i < 4; i++)
+        _values[i] = gogo[i];
+    dac_ready = true;
 }
 
 void Dac7554::WriteDac7554()
 {
-    if(!lock && dac_ready) {
+    uint8_t bobo[8];
+
+    if(!lock) {
         dac_ready = false;
         lock = true;
-
-        //uint8_t *src = (uint8_t *)(buff16);
-        //memcpy(myBuffer, src, 32);
-
-        //h_spi.BlockingTransmit(myBuffer + 4, 2, 100);
-        //}
-
-        uint8_t bobo[2];
 
         for(int i=0; i<4; i++) {
             uint8_t chan = i;
@@ -168,28 +140,10 @@ void Dac7554::WriteDac7554()
             bobo[0] = (cmd >> 8) & 0xff;
             bobo[1] = cmd & 0xff;
 
-            h_spi.BlockingTransmit(bobo, 8, 100);
-            //h_spi.BlockingTransmit(&bobo[1], 4, 100);
+            //h_spi.DmaTransmit(bobo, 8, NULL, NULL, NULL);
+            h_spi.BlockingTransmit(bobo, 8, 10);
         }
 
-        //cmd = (2 << 14) | (1 << 12) | buff16[1];
-        //h_spi.BlockingTransmit((uint8_t *)cmd + 2, 2, 100);
-        //h_spi.BlockingTransmit(myBuffer + 4, 2, 100);
-        //h_spi.BlockingTransmit(myBuffer + 6, 2, 100);
-
-        //for(int i=0; i < 8; i += 2) {
-        //}
-
-        //h_spi.BlockingTransmit(myBuffer, 2, 100);
-        //h_spi.DmaTransmit(myBuffer, 8, &TxCpltCallback, this);
-
-        /*
-        buff_index16 = 0;
-        memset(&buff16, 0, 1024);
-        memset(&buff, 0, 100);
-        */
-
-        memset(myBuffer, 0, 100);
 
         lock = false;
     }
