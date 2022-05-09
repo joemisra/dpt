@@ -361,6 +361,7 @@ namespace dpt
         AnalogControl controls[ADC_LAST];
         GateIn        gate_in_1, gate_in_2;
         dsy_gpio      gate_out_1, gate_out_2;
+        dsy_gpio      clicker1, clicker2;
 
         /** Pin Accessors for the DPT hardware
          *  Used for initializing various GPIO, etc.
