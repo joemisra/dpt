@@ -141,7 +141,7 @@ int main(void)
         // 500Hz samplerate for DAC output test
         if(now - dact > 2)
         {
-            hw.WriteCvOut(CV_OUT_1, dacphs.Process() * 5.f);
+            hw.WriteCvOut(CV_OUT_1, dacphs.Process() * 5.f, false);
             dact = now;
         }
 
@@ -187,7 +187,7 @@ int main(void)
             }
             else if(event.type == MidiMessageType::ControlChange) {
                 ControlChangeEvent e = event.AsControlChange();
-                hw.WriteCvOut(CV_OUT_2, ((float)e.value / 127.) * 5.f);
+                hw.WriteCvOut(CV_OUT_2, ((float)e.value / 127.) * 5.f, false);
             }
         } else {
             dsy_gpio_write(&hw.gate_out_2, 0);
