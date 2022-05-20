@@ -3,11 +3,6 @@
 **NOTE: This is an early commit, example firmware to follow.
 This is primarily an internal project, a limited supply of boards+panels is available at https://dsp.coffee/.**
 
-Small libdaisy patch may be needed in timer code -
-
-
-<img width="1151" alt="Screen Shot 2022-05-15 at 11 48 30 AM" src="https://user-images.githubusercontent.com/326734/168484368-634e0096-dab5-412f-b68a-821d4cd71a5e.png">
-
 electrosmith daisy patch submodule based development platform
 
 * 8 pots normalled to +5V.

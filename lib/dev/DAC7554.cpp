@@ -47,28 +47,9 @@ using namespace daisy;
 using namespace patch_sm;
 using namespace std;
 
-//#define DMA_BUFF __attribute__((section(".sdram_bss")))
-//uint8_t DMA_BUFFER_MEM_SECTION myBuffer[100];
-#define EXTERNAL_SDRAM_SECTION __attribute__((section(".sdram_bss")))
-//uint8_t DMA_BUFFER_MEM_SECTION *myBuffer;
-
-class Dac7554Data {
-    public:
-    uint16_t Data;
-
-    uint8_t Address;
-    uint8_t Command;
-
-    Dac7554Data(uint16_t address, uint16_t data) {
-        uint16_t cmd = (2 << 14) | (address << 12) | data;
-
-        Data = cmd;
-
-        Address = (cmd >> 8) & 0xff;
-        Command = cmd & 0xff;
-    }
-};
-
+#define MAX_DAC7554_BUF_SIZE 256
+uint8_t DMA_BUFFER_MEM_SECTION dac7554buf[MAX_DAC7554_BUF_SIZE];
+uint8_t DMA_BUFFER_MEM_SECTION dac7554buf_count = 0;
 
 typedef struct
 {
@@ -81,8 +62,14 @@ static Dac7554_t         Dac7554_;
 static SpiHandle::Config spi_config;
 
 void TxCpltCallback(void* context, daisy::SpiHandle::Result result) {
-    return;
+    if(dac7554buf_count < 3) {
+        dac7554buf_count++;
+        h_spi.DmaTransmit(dac7554buf + (2 * dac7554buf_count), 2, nullptr, TxCpltCallback, nullptr);
+    } else {
+        dac7554buf_count = 0;
+    }
 }
+
 
 void TxStartCallback(void* context) {
     return;
@@ -99,7 +86,7 @@ void Dac7554::Init()
 
     spi_config.periph         = SpiHandle::Config::Peripheral::SPI_2;
     spi_config.mode           = SpiHandle::Config::Mode::MASTER;
-    spi_config.direction      = SpiHandle::Config::Direction::TWO_LINES;
+    spi_config.direction      = SpiHandle::Config::Direction::TWO_LINES_TX_ONLY;
     spi_config.datasize       = 8;
     spi_config.clock_polarity = SpiHandle::Config::ClockPolarity::HIGH;
     spi_config.clock_phase    = SpiHandle::Config::ClockPhase::ONE_EDGE;
@@ -127,29 +114,24 @@ void Dac7554::Write(uint16_t gogo[4])
 
 void Dac7554::WriteDac7554()
 {
-    uint8_t bobo[8];
+    for(int i=0; i<4; i++) {
+        uint8_t chan = i;
+        uint16_t cmd = (2 << 14) | (chan << 12) | _values[chan];
 
-    if(!lock) {
-        dac_ready = false;
-        lock = true;
-
-        for(int i=0; i<4; i++) {
-            uint8_t chan = i;
-            uint16_t cmd = (2 << 14) | (chan << 12) | _values[chan];
-
-            bobo[0] = (cmd >> 8) & 0xff;
-            bobo[1] = cmd & 0xff;
-
-            //h_spi.DmaTransmit(bobo, 8, NULL, NULL, NULL);
-            h_spi.BlockingTransmit(bobo, 8, 10);
-        }
-
-
-        lock = false;
+        dac7554buf[2*i] = (cmd >> 8) & 0xff;
+        dac7554buf[2*i+1] = cmd & 0xff;
     }
+    h_spi.DmaTransmit(dac7554buf, 2, TxStartCallback, TxCpltCallback, nullptr);
+
+    // older blocking method, for reference
+    // h_spi.BlockingTransmit(dac7554buf, 2, 100);
+
+    //lock = false;
 }
 
 void Dac7554::Clear(void* context, int result) {
+    for(int i = 0; i < 4; i++)
+        _values[i] = 0;
 
 }
 
