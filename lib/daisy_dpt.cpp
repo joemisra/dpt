@@ -159,7 +159,7 @@ namespace dpt
         /** Based on a 0-5V output with a 0-4095 12-bit DAC */
         static inline uint16_t VoltageToCode(float input)
         {
-            float pre = (input + 5.0) * 273.f;
+            float pre = (input + 5.0f) * 273.f;
             if(pre > 4095.f)
                 pre = 4095.f;
             else if(pre < 0.f)
@@ -354,6 +354,13 @@ namespace dpt
         gate_out_2.pin  = B5;
         dsy_gpio_init(&gate_out_2);
 
+        // These two GPIO pins will conflict w/ MIDI
+
+        // Init MIDI i/o
+        if(ENABLE_MIDI) {
+            InitMidi();
+        }
+        else if(ENABLE_E4) {
         clicker1.mode = DSY_GPIO_MODE_OUTPUT_PP;
         clicker1.pull = DSY_GPIO_NOPULL;
         clicker1.pin = A8;
@@ -363,13 +370,11 @@ namespace dpt
         clicker2.pull = DSY_GPIO_NOPULL;
         clicker2.pin = A9;
         dsy_gpio_init(&clicker2);
+        }
 
         pimpl_->InitDac();
 
         dac_exp.Init();
-
-        /** Init MIDI i/o */
-        //InitMidi();
 
         /** DAC init */
 
@@ -384,7 +389,7 @@ namespace dpt
         daisy::TimerHandle tim5_;
         daisy::TimerHandle::Config timcfg;
         uint32_t target_freq;
-        target_freq = 22050;
+        target_freq = 48000; //this->AudioSampleRate() 32000;
         timcfg.periph = daisy::TimerHandle::Config::Peripheral::TIM_5;
         timcfg.dir = daisy::TimerHandle::Config::CounterDir::UP;
         auto tim_base_freq = daisy::System::GetPClk2Freq();
@@ -398,8 +403,8 @@ namespace dpt
 
         tim5_.Start();
 
-        TIM5->PSC = 1;
-        TIM5->DIER = TIM_DIER_UIE;
+        //TIM5->PSC = 1;
+        //TIM5->DIER = TIM_DIER_UIE;
         //tim5.Instance = ((TIM_TypeDef *)TIM5_BASE);
         //tim5.Init.CounterMode = TIM_COUNTERMODE_UP;
         //tim5.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -533,7 +538,7 @@ namespace dpt
     uint16_t DPT::VoltageToCodeExp(float input)
     {
         // Outputs are inverted, so have to flip the literal voltage
-        float pre = abs(((input + 7.0) / 14.0 * 4095.0) - 4095);
+        float pre = abs(((input + 7.f) / 14.f * 4095.f) - 4095.f);
 
         if(pre > 4095.f)
             pre = 4095.f;
@@ -554,6 +559,7 @@ namespace dpt
         gogo[3] = abs(raw ? (uint16_t) d - 4095 : VoltageToCodeExp(d));
 
         dac_exp.Write(gogo);
+        dac_exp.WriteDac7554();
     }
 
     void DPT::SetLed(bool state) { dsy_gpio_write(&user_led, state); }

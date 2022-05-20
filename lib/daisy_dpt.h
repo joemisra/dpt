@@ -6,6 +6,9 @@
 #include "dev/DAC7554.h"
 #endif
 
+#define ENABLE_MIDI 1 
+#define ENABLE_E4 0
+
 namespace daisy
 {
 namespace dpt
