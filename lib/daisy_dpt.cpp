@@ -356,10 +356,10 @@ namespace dpt
 
         pimpl_->InitDac();
 
-        dac_exp.Init();
+        //dac_exp.Init();
 
         /** Init MIDI i/o */
-        //InitMidi();
+        InitMidi();
 
         /** DAC init */
 

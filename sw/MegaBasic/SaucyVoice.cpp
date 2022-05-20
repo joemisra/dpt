@@ -40,7 +40,7 @@ void SaucyVoice::Init(float samplerate, int _index)
     vibratooo.SetFreq(2);
 
     cf.SetPos(0.5);
-    cf.SetCurve(CROSSFADE_CPOW);
+    cf.SetCurve(CROSSFADE_LIN);
     // envelope.SetTime(3, 0.0); // decay
 }
 
@@ -53,9 +53,9 @@ float SaucyVoice::Process()
 {
     float z1, z2, vib;
     vib = vibratooo.Process();
-    zosc.SetFreq(f + vib);
+    zosc.SetFreq(f);
     z1 = zosc.Process();
-    oscillator.SetFreq(f + vib);
+    oscillator.SetFreq(f);
     z2 = oscillator.Process();
 
     return cf.Process(z1, z2) * envelope.Process();
@@ -67,9 +67,6 @@ void SaucyVoice::Trig()
 }
 void SaucyVoice::TrigMidi(int note, int velocity)
 {
-    if (index >= 4)
-        note -= 24;
-
     f = mtof(note);
 
     oscillator.SetFreq(f);

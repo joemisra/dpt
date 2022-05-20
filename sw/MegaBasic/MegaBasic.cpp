@@ -51,10 +51,10 @@ void AudioCallback(AudioHandle::InputBuffer  in,
         oscillators[i].oscillator.SetPW(hw.GetAdcValue(dpt::CV_1));
         oscillators[i].oscillator.SetWaveshape(hw.GetAdcValue(dpt::CV_2));
         oscillators[i].zosc.SetShape(hw.GetAdcValue(dpt::CV_1));
-        oscillators[i].zosc.SetFormantFreq(hw.GetAdcValue(dpt::CV_2) * 8000.);
+        oscillators[i].zosc.SetFormantFreq(hw.GetAdcValue(dpt::CV_2) * 1000.);
         oscillators[i].zosc.SetMode(hw.GetAdcValue(dpt::CV_3));
         //oscillators[i].randdetune = hw.GetAdcValue(dpt::CV_5);
-        oscillators[i].envelope.SetTime(2, abs(hw.GetAdcValue(dpt::CV_5)));
+        oscillators[i].envelope.SetTime(2, abs(hw.GetAdcValue(dpt::CV_2)));
         oscillators[i].vibratooo.SetAmp(hw.GetAdcValue(dpt::CV_6) * 10.f);
         oscillators[i].vibratooo.SetFreq(hw.GetAdcValue(dpt::CV_7) * 30.f);
         fade = hw.GetAdcValue(dpt::CV_8);
@@ -63,8 +63,15 @@ void AudioCallback(AudioHandle::InputBuffer  in,
 
     for(size_t i = 0; i < size; i++)
     {
-        out[0][i] = oscillators[4].Process();
+        out[0][i] = (oscillators[0].Process() + oscillators[1].Process()) * 0.5;
+        out[1][i] = (oscillators[2].Process() + oscillators[3].Process()) * 0.5;
+        /*
+        out[1][i] = oscillators[1].Process() * -1;
+        out[0][i] = oscillators[2].Process() * -1;
+        out[1][i] = oscillators[3].Process();
+        out[0][i] = oscillators[4].Process() * -1;
         out[1][i] = oscillators[5].Process();
+        */
     }
 }
 
@@ -72,10 +79,11 @@ int main(void)
 {
     hw.Init();
     hw.SetAudioSampleRate(48000);
+    hw.SetAudioBlockSize(48);
     float samplerate = hw.AudioSampleRate();
 
     for(int i = 0; i < 6; i++) {
-         oscillators[i].Init(samplerate, i);
+         oscillators[i].Init(samplerate * 2.f, i);
     }
 
     uint32_t now, dact, usbt, gatet;
@@ -84,7 +92,6 @@ int main(void)
 
     hw.midi.StartReceive();
     hw.StartAudio(AudioCallback);
-    HAL_TIM_Base_Start(&hw.tim5);
 
     while(1)
     {
@@ -116,10 +123,13 @@ int main(void)
                 hw.WriteCvOut(CV_OUT_2, ((float)e.value / 127.) * 5.f, false);
             }
         } 
+        hw.Delay(10);
     }
 }
 
+
 // Interrupt for updating DAC7554
+/*
 extern "C" void TIM5_IRQHandler(void) {
     hw.tim5.Instance->SR = 0;
 
@@ -138,3 +148,4 @@ extern "C" void TIM5_IRQHandler(void) {
         hw.dac_exp.WriteDac7554();
     }
 }
+*/
