@@ -1,11 +1,10 @@
 # dsp.coffee dpt - multifunction electron temple
 
-**NOTE: This is an early commit, example firmware to follow.
-This is primarily an internal project, a limited supply of boards+panels is available at https://dsp.coffee/.**
+** DPT module/kit is currently available at https://dsp.coffee/. In stock as of 05/24/2022. **
 
 electrosmith daisy patch submodule based development platform
 
-* 8 pots normalled to +5V.
+* 8 pots normalled to 0V - +5V.
 * 8 CV in, this breaks normalled connection and pot acts as an attenuator.
 * 2 gate in
 * 2 gate out
@@ -14,7 +13,7 @@ electrosmith daisy patch submodule based development platform
 * 4 12-bit CV (or lofi audio w/ some hacking) from external DAC7554, scaled to -7v to 7v.
 * TRS MIDI in/out (midi in uses lpzw auto-sensing circuit for type a/b)
 * SD card slot.
-* Expander header on the back for +5v, +3v3, SPI, UART, I2C, and USB connections.
+* Expander header on the back for +5v, +3v3, SPI, UART, I2C, and USB connections. [Two expanders have been prototyped now, one with two tact switches and USB port, one with LED controller + 5 RGB leds and 4 tact switches]
 
 Output scaling circuits for DAC7554 and TRS MIDI are based
 on portions of https://github.com/plinkysynth/plinky-expander
