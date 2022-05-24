@@ -15,6 +15,16 @@ FatFSInterface fsi;
 using MyOledDisplay = OledDisplay<SSD130xI2c128x32Driver>;
 MyOledDisplay         display;
 
+uint8_t sumbuff[1024];
+
+void UsbCallback(uint8_t *buf, uint32_t *len)
+{
+    for (size_t i = 0; i < *len; i++)
+    {
+        sumbuff[i] = buf[i];
+    }
+}
+
 void AudioCallback(AudioHandle::InputBuffer  in,
                    AudioHandle::OutputBuffer out,
                    size_t                    size)
@@ -54,129 +64,23 @@ int main(void)
 {
     hw.Init();
 
-
     //hw.midi.StartReceive();
     //hw.StartLog(false);
 
-    /** Memory tests first to keep test short if everything else fails */
-    bool sdram_pass = hw.ValidateSDRAM();
-    hw.PrintLine("SDRAM Test\t-\t%s", sdram_pass ? "PASS" : "FAIL");
-    bool qspi_pass = hw.ValidateQSPI();
-    hw.PrintLine("QSPI Test\t-\t%s", qspi_pass ? "PASS" : "FAIL");
-
-    /** SD card next */
-    SdmmcHandler::Config sd_config;
-    SdmmcHandler sdcard;
-    sd_config.Defaults();
-
-    sdcard.Init(sd_config);
-
-    fsi.Init(FatFSInterface::Config::MEDIA_SD);
-
-    /** Write/Read text file */
-    const char *test_string = "Testing Daisy Patch SM";
-    const char *test_fname  = "DaisyPatchSM-Test.txt";
-    FRESULT     fres = FR_DENIED, roro; /**< Unlikely to actually experience this */
-    if(f_mount(&fsi.GetSDFileSystem(), "/", 0) == FR_OK)
-    {
-        /** Write Test */
-        roro = f_open(&file, test_fname, (FA_CREATE_ALWAYS | FA_WRITE));
-        if(roro == FR_OK)
-        {
-            UINT   bw  = 0;
-            size_t len = strlen(test_string);
-            fres       = f_write(&file, test_string, len, &bw);
-        } else {
-            // hay
-        }
-        f_close(&file);
-        if(fres == FR_OK)
-        {
-            /** Read Test only if Write passed */
-            if(f_open(&file, test_fname, (FA_OPEN_EXISTING | FA_READ)) == FR_OK)
-            {
-                UINT   br = 0;
-                char   readbuff[32];
-                size_t len = strlen(test_string);
-                fres       = f_read(&file, readbuff, len, &br);
-            }
-            f_close(&file);
-        }
-    }
-    bool sdmmc_pass = fres == FR_OK;
-    hw.PrintLine("SDMMC Test\t-\t%s", sdmmc_pass ? "PASS" : "FAIL");
-
-    /** 5 second delay before starting streaming test. */
-   //System::Delay(5000);
-
-
-    /** Initialize Button/Toggle for rest of test. */
-    button.Init(DPT::B7, hw.AudioCallbackRate());
-    toggle.Init(DPT::B8, hw.AudioCallbackRate());
-
-    daisysp::Phasor dacphs;
-    dacphs.Init(500);
-    dacphs.SetFreq(1.f);
-
-    hw.StartAudio(AudioCallback);
+    //hw.usb.Init(UsbHandle::UsbPeriph::FS_EXTERNAL);
 
     uint32_t now, dact, usbt, gatet;
     now = dact = usbt = System::GetNow();
     gatet             = now;
 
-    char *outout = new char[256];
-
-    MyOledDisplay::Config disp_cfg;
-    disp_cfg.driver_config.transport_config.i2c_config.periph = I2CHandle::Config::Peripheral::I2C_1;
-    disp_cfg.driver_config.transport_config.i2c_config.speed = I2CHandle::Config::Speed::I2C_1MHZ;
-    disp_cfg.driver_config.transport_config.i2c_config.mode = I2CHandle::Config::Mode::I2C_MASTER;
-    disp_cfg.driver_config.transport_config.i2c_config.pin_config.scl = DPT::B7;
-    disp_cfg.driver_config.transport_config.i2c_config.pin_config.sda = DPT::B8;
-    disp_cfg.driver_config.transport_config.i2c_address = 0x3c;
-    display.Init(disp_cfg);
+    //hw.usb_midi.StartReceive();
 
     while(1)
     {
         now = System::GetNow();
-        // 500Hz samplerate for DAC output test
-        if(now - dact > 2)
-        {
-            hw.WriteCvOut(CV_OUT_1, dacphs.Process() * 5.f, false);
-            dact = now;
-        }
+        hw.usb_midi.Listen();
 
-        if(now - usbt > 100)
-        {
-            hw.PrintLine("Streaming Test Results");
-            hw.PrintLine("######################");
-            hw.PrintLine("Analog Inputs:");
-            for(int i = 0; i < ADC_LAST; i++)
-            {
-                hw.Print("%s_%d: " FLT_FMT3,
-                         i < ADC_9 ? "CV" : "ADC",
-                         i + 1,
-                         FLT_VAR3(hw.GetAdcValue(i)));
-                if(i != 0 && (i + 1) % 4 == 0)
-                    hw.Print("\n");
-                else
-                    hw.Print("\t");
-            }
-            hw.PrintLine("######################");
-            hw.PrintLine("Digital Inputs:");
-            hw.Print("Button: %s\t", button.Pressed() ? "ON" : "OFF");
-            hw.Print("Toggle: %s\t", toggle.Pressed() ? "UP" : "DOWN");
-            hw.Print("\nGATE_IN_1: %s\t",
-                     hw.gate_in_1.State() ? "HIGH" : "LOW");
-            hw.PrintLine("GATE_IN_2: %s",
-                         hw.gate_in_2.State() ? "HIGH" : "LOW");
-            hw.PrintLine("######################");
-            usbt = now;
-            //MIDISendNoteOn(1, 50, 100);
-        }
-
-        hw.midi.Listen();
-
-        if(hw.midi.HasEvents()) {
+        if(hw.usb_midi.HasEvents()) {
             auto event = hw.midi.PopEvent();
 
             if(event.type  == MidiMessageType::NoteOn) {
@@ -192,26 +96,6 @@ int main(void)
         } else {
             dsy_gpio_write(&hw.gate_out_2, 0);
         }
-
-        /** short 60ms blip off on builtin LED */
-        hw.SetLed((now & 2047) > 60);
-
-        snprintf(outout, 64, "r %d sdm %d fr %d", roro, sdmmc_pass ? 1 : 0, fres);
-
-        display.Fill(false);
-        display.SetCursor(0,0);
-        display.WriteString(outout, Font_6x8, true);
-        display.Update();
-
         hw.Delay(50);
     }
-}
-
-extern "C" void TIM5_IRQHandler(void) {
-    hw.tim5.Instance->SR = 0;
-    /*
-    if(!patch.dac_exp.lock) {
-        patch.dac_exp.WriteDac7554();
-    }
-    */
 }

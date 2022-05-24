@@ -1,0 +1,543 @@
+make all --print-data-base --no-builtin-variables --no-builtin-rules --question
+# GNU Make 3.81
+# Copyright (C) 2006  Free Software Foundation, Inc.
+# This is free software; see the source for copying conditions.
+# There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.
+
+# This program built for i386-apple-darwin11.3.0
+
+# Make data base, printed on Tue May 24 07:05:53 2022
+
+# Variables
+
+# makefile (from `../../libDaisy//core/Makefile', line 204)
+DAISY_PID = df11
+# automatic
+<D = $(patsubst %/,%,$(dir $<))
+# automatic
+?F = $(notdir $?)
+# makefile (from `../../libDaisy//core/Makefile', line 212)
+LDSCRIPT = $(SYSTEM_FILES_DIR)/STM32H750IB_flash.lds
+# environment
+VSCODE_LOG_NATIVE = false
+# makefile (from `Makefile', line 7)
+CPP_SOURCES = Template.cpp ../../lib/daisy_dpt.cpp ../../lib/dev/DAC7554.cpp
+# makefile (from `Makefile', line 2)
+TARGET = HardwareTest
+# automatic
+?D = $(patsubst %/,%,$(dir $?))
+# makefile (from `../../libDaisy//core/Makefile', line 180)
+CPPFLAGS = $(CFLAGS) -fno-exceptions -fasm -finline -finline-functions-called-once -fshort-enums -fno-move-loop-invariants -fno-unwind-tables -fno-rtti -Wno-register
+# environment
+PLATFORMIO_IDE = 2.4.3
+# makefile (from `../../libDaisy//core/Makefile', line 103)
+AS_DEFS = 
+# makefile (from `../../libDaisy//core/Makefile', line 125)
+AS_INCLUDES = 
+# automatic
+@D = $(patsubst %/,%,$(dir $@))
+# automatic
+@F = $(notdir $@)
+# makefile
+CURDIR := /Users/jm/Projects/dpt/sw/Template
+# makefile
+SHELL = /bin/sh
+# makefile (from `../../libDaisy//core/Makefile', line 84)
+BIN = $(CP) -O binary -S
+# environment
+VSCODE_NLS_CONFIG = {"locale":"en-us","availableLanguages":{},"_languagePackSupport":true}
+# makefile (from `../../libDaisy//core/Makefile', line 81)
+SZ = $(PREFIX)size
+# environment
+_ = /usr/bin/make
+# makefile (from `../../libDaisy//core/Makefile', line 177)
+CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -Wno-missing-attributes -fasm -fdata-sections -ffunction-sections -Wno-stringop-overflow -g -ggdb -MMD -MP -MF"$(@:%.o=%.d)"
+# makefile (from `../../libDaisy//core/Makefile', line 1)
+MAKEFILE_LIST :=  Makefile ../../libDaisy//core/Makefile
+# makefile (from `../../libDaisy//core/Makefile', line 80)
+CP = $(PREFIX)objcopy
+# makefile (from `../../libDaisy//core/Makefile', line 191)
+C_STANDARD = -std=gnu11
+# environment
+VSCODE_VERBOSE_LOGGING = true
+# makefile (from `../../libDaisy//core/Makefile', line 79)
+AS = $(PREFIX)gcc -x assembler-with-cpp
+# environment
+__CFBundleIdentifier = com.microsoft.VSCode
+# makefile (from `../../libDaisy//core/Makefile', line 3)
+CHIPSET = stm32h7x
+# environment
+VSCODE_IPC_HOOK_EXTHOST = /var/folders/w6/rj51s8z500jflrjtp62p3x0h0000gn/T/vscode-ipc-f979ad16-60da-438f-b0b8-a6b325ca3e2b.sock
+# makefile (from `../../libDaisy//core/Makefile', line 20)
+GDB_FLAGS = 
+# environment
+VSCODE_CWD = /
+# makefile (from `Makefile', line 4)
+USE_FATFS = 1
+# environment
+NO_PROXY = 127.0.0.1
+# makefile (from `../../libDaisy//core/Makefile', line 213)
+USBPID = $(STM_PID)
+# makefile (from `../../libDaisy//core/Makefile', line 208)
+APP_TYPE = BOOT_NONE
+# makefile (from `../../libDaisy//core/Makefile', line 192)
+CPP_STANDARD = -std=gnu++14
+# makefile (from `Makefile', line 11)
+DAISYSP_DIR = ../../DaisySP/
+# environment
+VSCODE_LOG_STACK = false
+# environment
+ELECTRON_RUN_AS_NODE = 1
+# makefile (from `../../libDaisy//core/Makefile', line 250)
+LDFLAGS =  $(MCU) --specs=nano.specs --specs=nosys.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections -Wl,--print-memory-usage
+# default
+.FEATURES := target-specific order-only second-expansion else-if archives jobserver check-symlink
+# environment
+SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.RaWc0JFOaC/Listeners
+# automatic
+%F = $(notdir $%)
+# makefile (from `../../libDaisy//core/Makefile', line 29)
+OPT = -O2
+# makefile (from `../../libDaisy//core/Makefile', line 5)
+TARGET_BIN = $(TARGET).bin
+# environment
+VSCODE_PIPE_LOGGING = true
+# environment
+PWD = /Users/jm/Projects/dpt/sw/Template
+# makefile (from `../../libDaisy//core/Makefile', line 200)
+QSPI_ADDRESS = 0x90040000
+# makefile (from `../../libDaisy//core/Makefile', line 78)
+GDB = $(PREFIX)gdb
+# environment
+ORIGINAL_XDG_CURRENT_DESKTOP = undefined
+# environment
+VSCODE_AMD_ENTRYPOINT = vs/workbench/api/node/extensionHostProcess
+# environment
+HOME = /Users/jm
+# default
+MAKEFILEPATH = $(shell /usr/bin/xcode-select -print-path 2>/dev/null || echo /Developer)/Makefiles
+# environment
+VSCODE_CODE_CACHE_PATH = /Users/jm/Library/Application Support/Code/CachedData/c3511e6c69bb39013c4a4b7b9566ec1ca73fc4d5
+# environment
+LOGNAME = jm
+# environment
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = 1
+# makefile (from `../../libDaisy//core/Makefile', line 16)
+OCD_DIR = /usr/local/share/openocd/scripts
+# makefile (from `../../libDaisy//core/Makefile', line 65)
+PREFIX = arm-none-eabi-
+# environment
+VSCODE_HANDLES_UNCAUGHT_ERRORS = true
+# automatic
+^D = $(patsubst %/,%,$(dir $^))
+# makefile (from `../../libDaisy//core/Makefile', line 113)
+C_DEFS =  -DUSE_HAL_DRIVER -DSTM32H750xx -DHSE_VALUE=16000000  -DCORE_CM7 -DSTM32H750IB -DARM_MATH_CM7 -DUSE_FULL_LL_DRIVER
+# environment
+PLATFORMIO_PATH = /Users/jm/.platformio/python3/bin:/usr/local/opt/mariadb@10.4/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/TeX/texbin:/usr/local/share/dotnet:/opt/X11/bin:~/.dotnet/tools:/Library/Apple/usr/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands
+# default
+MAKE = $(MAKE_COMMAND)
+# default
+MAKECMDGOALS := all
+# environment
+PATH = /usr/local/opt/mariadb@10.4/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/TeX/texbin:/usr/local/share/dotnet:/opt/X11/bin:~/.dotnet/tools:/Library/Apple/usr/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands
+# environment
+SHLVL = 1
+# makefile (from `../../libDaisy//core/Makefile', line 96)
+FLOAT-ABI = -mfloat-abi=hard
+# environment
+XPC_FLAGS = 0x0
+# makefile (from `../../libDaisy//core/Makefile', line 83)
+HEX = $(CP) -O ihex
+# makefile (from `../../libDaisy//core/Makefile', line 76)
+CC = $(PREFIX)gcc
+# makefile (from `../../libDaisy//core/Makefile', line 205)
+STM_PID = df11
+# makefile (from `../../libDaisy//core/Makefile', line 38)
+BUILD_DIR = build
+# makefile (from `../../libDaisy//core/Makefile', line 166)
+ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
+# default
+MAKE_VERSION := 3.81
+# environment
+USER = jm
+# makefile
+.DEFAULT_GOAL := all
+# makefile (from `../../libDaisy//core/Makefile', line 199)
+INTERNAL_ADDRESS = 0x08000000
+# automatic
+%D = $(patsubst %/,%,$(dir $%))
+# makefile (from `../../libDaisy//core/Makefile', line 246)
+LIBDIR = -L$(LIBDAISY_DIR)/build -L $(DAISYSP_DIR)/build
+# makefile (from `../../libDaisy//core/Makefile', line 90)
+CPU = -mcpu=cortex-m7
+# makefile (from `../../libDaisy//core/Makefile', line 93)
+FPU = -mfpu=fpv5-d16
+# makefile (from `../../libDaisy//core/Makefile', line 17)
+PGM_DEVICE = interface/stlink.cfg
+# default
+MAKE_COMMAND := /Library/Developer/CommandLineTools/usr/bin/make
+# makefile (from `../../libDaisy//core/Makefile', line 207)
+BOOT_BIN = $(wildcard $(SYSTEM_FILES_DIR)/dsy_bootloader*)
+# default
+.VARIABLES := 
+# environment
+TMPDIR = /var/folders/w6/rj51s8z500jflrjtp62p3x0h0000gn/T/
+# automatic
+*F = $(notdir $*)
+# environment
+VSCODE_IPC_HOOK = /Users/jm/Library/Application Support/Code/1.67.2-main.sock
+# makefile
+MAKEFLAGS = Rrqp
+# environment
+MFLAGS = -Rrqp
+# automatic
+*D = $(patsubst %/,%,$(dir $*))
+# makefile (from `../../libDaisy//core/Makefile', line 15)
+OCD = openocd
+# environment
+XPC_SERVICE_NAME = application.com.microsoft.VSCode.59875475.59875481
+# automatic
++D = $(patsubst %/,%,$(dir $+))
+# makefile (from `../../libDaisy//core/Makefile', line 6)
+TARGET_ELF = $(TARGET).elf
+# automatic
++F = $(notdir $+)
+# makefile (from `../../libDaisy//core/Makefile', line 214)
+FLASH_ADDRESS = $(INTERNAL_ADDRESS)
+# makefile (from `../../libDaisy//core/Makefile', line 99)
+MCU = $(CPU) -mthumb $(FPU) $(FLOAT-ABI)
+# makefile (from `../../libDaisy//core/Makefile', line 163)
+ 
+C_INCLUDES = -include stm32h7xx.h -I$(LIBDAISY_DIR) -I$(LIBDAISY_DIR)/src/ -I$(LIBDAISY_DIR)/src/sys -I$(LIBDAISY_DIR)/src/usbd -I$(LIBDAISY_DIR)/src/usbh -I$(LIBDAISY_DIR)/Drivers/CMSIS/Include/ -I$(LIBDAISY_DIR)/Drivers/CMSIS/DSP/Include -I$(LIBDAISY_DIR)/Drivers/CMSIS/Device/ST/STM32H7xx/Include -I$(LIBDAISY_DIR)/Drivers/STM32H7xx_HAL_Driver/Inc/ -I$(LIBDAISY_DIR)/Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I$(LIBDAISY_DIR)/Middlewares/ST/STM32_USB_Host_Library/Core/Inc -I$(LIBDAISY_DIR)/Middlewares/ST/STM32_USB_Host_Library/Class/MSC/Inc -I$(SYSTEM_FILES_DIR)/ -I$(DAISYSP_DIR)/Source -I$(FATFS_DIR)
+# environment
+__CF_USER_TEXT_ENCODING = 0x1F5:0x0:0x0
+# environment
+COMMAND_MODE = unix2003
+# makefile (from `../../libDaisy//core/Makefile', line 152)
+FATFS_DIR = $(LIBDAISY_DIR)/Middlewares/Third_Party/FatFs/src
+# default
+MAKEFILES := 
+# automatic
+<F = $(notdir $<)
+# environment
+PLATFORMIO_CALLER = vscode
+# makefile (from `../../libDaisy//core/Makefile', line 18)
+OCDFLAGS = -f $(PGM_DEVICE) -f target/$(CHIPSET).cfg
+# makefile (from `../../libDaisy//core/Makefile', line 77)
+CXX = $(PREFIX)g++ 
+# makefile (from `../../libDaisy//core/Makefile', line 154)
+FATFS_SOURCES =  $(FATFS_DIR)/diskio.c $(FATFS_DIR)/ff.c $(FATFS_DIR)/ff_gen_drv.c $(FATFS_DIR)/option/ccsbcs.c
+# environment
+LC_ALL = C
+# makefile (from `Makefile', line 16)
+SYSTEM_FILES_DIR = $(LIBDAISY_DIR)/core
+# makefile (from `Makefile', line 10)
+LIBDAISY_DIR = ../../libDaisy/
+# makefile (from `../../libDaisy//core/Makefile', line 245)
+LIBS = -ldaisy -lc -lm -lnosys -ldaisysp
+# automatic
+^F = $(notdir $^)
+# makefile (from `../../libDaisy//core/Makefile', line 161)
+C_SOURCES = $(SYSTEM_FILES_DIR)/startup_stm32h750xx.c $(FATFS_SOURCES)
+# default
+SUFFIXES := 
+# default
+.INCLUDE_DIRS = /usr/local/include
+# environment
+MAKELEVEL := 0
+# makefile (from `../../libDaisy//core/Makefile', line 264)
+OBJECTS = $(addprefix $(BUILD_DIR)/,$(notdir $(C_SOURCES:.c=.o))) $(addprefix $(BUILD_DIR)/,$(notdir $(CPP_SOURCES:.cpp=.o))) $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES:.s=.o)))
+# environment
+LANG = C
+# environment
+VSCODE_PID = 17954
+# variable set hash-table stats:
+# Load=120/1024=12%, Rehash=0, Collisions=25/264=9%
+
+# Pattern-specific Variable Values
+
+# No pattern-specific variable values.
+
+# Directories
+
+# ../../lib (device 16777230, inode 54836261): No files, no impossibilities so far.
+# . (device 16777230, inode 62140094): 5 files, no impossibilities.
+# ../../libDaisy//Middlewares/Third_Party/FatFs/src (device 16777230, inode 54827440): 11 files, no impossibilities.
+# build: could not be stat'd.
+# ../../libDaisy//core (device 16777230, inode 54827466): 3 files, no impossibilities so far.
+# ../../lib/dev (device 16777230, inode 53697759): No files, no impossibilities so far.
+# ../../libDaisy//Middlewares/Third_Party/FatFs/src/option (device 16777230, inode 54827449): 9 files, no impossibilities.
+
+# 28 files, no impossibilities in 7 directories.
+
+# Implicit Rules
+
+build/%.o: %.c Makefile | build
+#  commands to execute (from `../../libDaisy//core/Makefile', line 268):
+	$(CC) -c $(CFLAGS) $(C_STANDARD) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
+	
+
+build/%.o: %.cpp Makefile | build
+#  commands to execute (from `../../libDaisy//core/Makefile', line 271):
+	$(CXX) -c $(CPPFLAGS) $(CPP_STANDARD) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.cpp=.lst)) $< -o $@
+	
+
+build/%.o: %.s Makefile | build
+#  commands to execute (from `../../libDaisy//core/Makefile', line 274):
+	$(AS) -c $(ASFLAGS) $< -o $@
+	
+
+build/%.hex: build/%.elf | build
+#  commands to execute (from `../../libDaisy//core/Makefile', line 280):
+	$(HEX) $< $@
+	
+
+build/%.bin: build/%.elf | build
+#  commands to execute (from `../../libDaisy//core/Makefile', line 283):
+	$(BIN) $< $@
+	
+
+# 5 implicit rules, 0 (0.0%) terminal.
+
+# Files
+
+program:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `../../libDaisy//core/Makefile', line 318):
+	$(OCD) -s $(OCD_DIR) $(OCDFLAGS) \
+	-c "program ./build/$(TARGET).elf verify reset exit"
+	
+
+build/HardwareTest.elf: build/startup_stm32h750xx.o build/diskio.o build/ff.o build/ff_gen_drv.o build/ccsbcs.o build/Template.o build/daisy_dpt.o build/DAC7554.o Makefile
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has been updated.
+#  Needs to be updated (-q is set).
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/2=0%
+#  commands to execute (from `../../libDaisy//core/Makefile', line 277):
+	$(CXX) $(OBJECTS) $(LDFLAGS) -o $@
+	
+
+debug_client:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `../../libDaisy//core/Makefile', line 314):
+	ddd --eval-command="target remote localhost:3333" --debugger $(GDB) $(TARGET_ELF)
+	
+
+all: build/HardwareTest.elf build/HardwareTest.hex build/HardwareTest.bin
+#  Command-line target.
+#  Implicit rule search has been done.
+#  File does not exist.
+#  File has been updated.
+#  Needs to be updated (-q is set).
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/2=0%
+
+openocd:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `../../libDaisy//core/Makefile', line 299):
+	$(OCD) -s $(OCD_DIR) $(OCDFLAGS)
+	
+
+# Not a target:
+build/Template.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+program-dfu:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `../../libDaisy//core/Makefile', line 330):
+	dfu-util -a 0 -s $(FLASH_ADDRESS):leave -D $(BUILD_DIR)/$(TARGET_BIN) -d ,0483:$(USBPID)
+	
+
+# Not a target:
+.SUFFIXES:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+build/HardwareTest.bin:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+Makefile:
+#  Implicit rule search has been done.
+#  Last modified 2022-05-24 07:04:14
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+
+debug:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `../../libDaisy//core/Makefile', line 302):
+	@if ! nc -z localhost 3333; then \
+	echo "\n\t[Error] OpenOCD is not running! Start it with: 'make openocd'\n"; exit 1; \
+	else \
+	$(GDB)  -ex "target extended localhost:3333" \
+	-ex "monitor arm semihosting enable" \
+	-ex "monitor reset halt" \
+	-ex "load" \
+	-ex "monitor reset init" \
+	$(GDBFLAGS) build/$(TARGET).elf; \
+	fi
+	
+
+# Not a target:
+build/DAC7554.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+build/ccsbcs.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+build:
+#  Implicit rule search has not been done.
+#  Implicit/static pattern stem: `'
+#  File does not exist.
+#  File has been updated.
+#  Needs to be updated (-q is set).
+# automatic
+# @ := build
+# automatic
+# % := 
+# automatic
+# * := 
+# automatic
+# + := 
+# automatic
+# | := 
+# automatic
+# < := 
+# automatic
+# ^ := 
+# automatic
+# ? := 
+# variable set hash-table stats:
+# Load=8/32=25%, Rehash=0, Collisions=1/11=9%
+#  commands to execute (from `../../libDaisy//core/Makefile', line 286):
+	mkdir $@
+	
+
+# Not a target:
+build/diskio.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+build/daisy_dpt.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+build/startup_stm32h750xx.o: ../../libDaisy//core/startup_stm32h750xx.c Makefile | build
+#  Implicit rule search has been done.
+#  Implicit/static pattern stem: `startup_stm32h750xx'
+#  File does not exist.
+#  File has been updated.
+ 
+#  Needs to be updated (-q is set).
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/2=0%
+#  commands to execute (from `../../libDaisy//core/Makefile', line 268):
+	$(CC) -c $(CFLAGS) $(C_STANDARD) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
+	
+
+# Not a target:
+../../libDaisy//core/Makefile:
+#  Implicit rule search has been done.
+#  Last modified 2022-05-17 10:28:26
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+
+# Not a target:
+.DEFAULT:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+build/ff.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+clean:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `../../libDaisy//core/Makefile', line 292):
+	-rm -fR $(BUILD_DIR)
+	
+
+# Not a target:
+build/ff_gen_drv.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+../../libDaisy//core/startup_stm32h750xx.c:
+#  Implicit rule search has been done.
+#  Last modified 2022-04-09 13:31:39
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+
+# Not a target:
+build/HardwareTest.hex:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+program-boot:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `../../libDaisy//core/Makefile', line 333):
+	dfu-util -a 0 -s $(INTERNAL_ADDRESS):leave -D $(BOOT_BIN) -d ,0483:$(STM_PID)
+	
+
+# files hash-table stats:
+# Load=25/1024=2%, Rehash=0, Collisions=4/69=6%
+# VPATH Search Paths
+
+vpath %.c ../../libDaisy//Middlewares/Third_Party/FatFs/src:../../libDaisy//Middlewares/Third_Party/FatFs/src/option:../../libDaisy//core
+vpath %.cpp ../../lib:../../lib/dev
+
+# 2 `vpath' search paths.
+
+# No general (`VPATH' variable) search path.
+
+# # of strings in strcache: 2
+# # of strcache buffers: 1
+# strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
+# strcache free: total = 4057 / max = 4057 / min = 4057 / avg = 4057
+
+# Finished Make data base on Tue May 24 07:05:53 2022
+
+ 
