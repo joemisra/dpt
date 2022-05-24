@@ -417,16 +417,17 @@ namespace dpt
     }
 
     void DPT::InitMidi() {
+        /*
         MidiUsbHandler::Config midi_cfg;
         midi_cfg.transport_config.periph = MidiUsbTransport::Config::EXTERNAL;
         usb_midi.Init(midi_cfg);
+        */
 
-        /*
+        // This is using USART1 here
         MidiUartHandler::Config midi_config;
         midi_config.transport_config.rx = DPT::A9;
         midi_config.transport_config.tx = DPT::A8;
         midi.Init(midi_config);
-        */
     }
 
     void DPT::StartAudio(AudioHandle::AudioCallback cb)

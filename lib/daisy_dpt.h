@@ -7,7 +7,7 @@
 #endif
 
 #define ENABLE_MIDI 1
-#define ENABLE_E4 0
+#define ENABLE_E4 0 // Expander w/ LED controller and 4 buttons
 
 namespace daisy
 {
