@@ -1,0 +1,8 @@
+make --dry-run --keep-going --print-directory
+make: Entering directory `/Users/jm/Projects/dpt/sw/ReverbExample'
+arm-none-eabi-g++  build/startup_stm32h750xx.o build/ReverbExample.o build/daisy_dpt.o build/DAC7554.o   -mcpu=cortex-m7 -mthumb -mfpu=fpv5-d16 -mfloat-abi=hard --specs=nano.specs --specs=nosys.specs -T../../libDaisy//core/STM32H750IB_flash.lds -L../../libDaisy//build -L ../../DaisySP//build -ldaisy -lc -lm -lnosys -ldaisysp -Wl,-Map=build/ReverbExample.map,--cref -Wl,--gc-sections -Wl,--print-memory-usage -o build/ReverbExample.elf
+arm-none-eabi-objcopy -O ihex build/ReverbExample.elf build/ReverbExample.hex
+ 
+arm-none-eabi-objcopy -O binary -S build/ReverbExample.elf build/ReverbExample.bin
+make: Leaving directory `/Users/jm/Projects/dpt/sw/ReverbExample'
+ 
