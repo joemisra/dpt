@@ -13,7 +13,7 @@ class SaucyVoice {
         Oscillator vibratooo;
         float f;
         int index;
-        
+        float last; 
         AdEnv envelope;
 
         float randdetune;
@@ -21,6 +21,7 @@ class SaucyVoice {
         void Init(float samplerate, int _index);
 
         void SetFade(float fade); 
+        void SetFreq(float freq);
 
         float Process();
 

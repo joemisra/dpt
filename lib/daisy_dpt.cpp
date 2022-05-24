@@ -354,22 +354,22 @@ namespace dpt
         gate_out_2.pin  = B5;
         dsy_gpio_init(&gate_out_2);
 
-        // These two GPIO pins will conflict w/ MIDI
 
         // Init MIDI i/o
         if(ENABLE_MIDI) {
             InitMidi();
-        }
-        else if(ENABLE_E4) {
-        clicker1.mode = DSY_GPIO_MODE_OUTPUT_PP;
-        clicker1.pull = DSY_GPIO_NOPULL;
-        clicker1.pin = A8;
-        dsy_gpio_init(&clicker1);
+        } else if(ENABLE_E4) {
+            // These two GPIO pins will conflict w/ MIDI
 
-        clicker2.mode = DSY_GPIO_MODE_OUTPUT_PP;
-        clicker2.pull = DSY_GPIO_NOPULL;
-        clicker2.pin = A9;
-        dsy_gpio_init(&clicker2);
+            clicker1.mode = DSY_GPIO_MODE_OUTPUT_PP;
+            clicker1.pull = DSY_GPIO_NOPULL;
+            clicker1.pin = A8;
+            dsy_gpio_init(&clicker1);
+
+            clicker2.mode = DSY_GPIO_MODE_OUTPUT_PP;
+            clicker2.pull = DSY_GPIO_NOPULL;
+            clicker2.pin = A9;
+            dsy_gpio_init(&clicker2);
         }
 
         pimpl_->InitDac();

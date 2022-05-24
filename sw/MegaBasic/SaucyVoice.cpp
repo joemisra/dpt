@@ -33,9 +33,6 @@ void SaucyVoice::Init(float samplerate, int _index)
     envelope.SetTime(1, 0.01); // attack
     envelope.SetTime(2, 0.64); // decay
 
-    zosc.SetMode(0.5);
-    zosc.SetShape(0.5);
-
     vibratooo.SetAmp(5);
     vibratooo.SetFreq(2);
 
@@ -51,14 +48,13 @@ void SaucyVoice::SetFade(float fade)
 
 float SaucyVoice::Process()
 {
-    float z1, z2, vib;
-    vib = vibratooo.Process();
+    float z2;
     zosc.SetFreq(f);
-    z1 = zosc.Process();
     oscillator.SetFreq(f);
     z2 = oscillator.Process();
+    last = z2 * envelope.Process();
 
-    return cf.Process(z1, z2) * envelope.Process();
+    return last;
 }
 
 void SaucyVoice::Trig()

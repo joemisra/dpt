@@ -1,7 +1,7 @@
 /*
  * MegaBasic MIDI Polysynth for dsp.coffee DPT
  *
- * Was basic; now? not so much.
+ * Notes are doubled on DAC7554 outputs
  * 
  * 2022 - Joseph Misra
  * 
@@ -11,13 +11,15 @@
 #include "../../lib/daisy_dpt.h"
 #include "SaucyVoice.h"
 
+#define MAX_VOICES 8
+
 using namespace daisy;
 using namespace dpt;
 using namespace daisysp;
 
-DPT hw;
+DPT patch;
 
-SaucyVoice oscillators[6];
+SaucyVoice oscillators[8];
 
 int currVoice = 0;
 
@@ -45,85 +47,90 @@ void AudioCallback(AudioHandle::InputBuffer  in,
                    size_t                    size)
 {
     float fade;
-    hw.ProcessAllControls();
+    patch.ProcessAllControls();
 
-    for(int i = 0; i < 6; i++) {
-        oscillators[i].oscillator.SetPW(hw.GetAdcValue(dpt::CV_1));
-        oscillators[i].oscillator.SetWaveshape(hw.GetAdcValue(dpt::CV_2));
-        oscillators[i].zosc.SetShape(hw.GetAdcValue(dpt::CV_1));
-        oscillators[i].zosc.SetFormantFreq(hw.GetAdcValue(dpt::CV_2) * 1000.);
-        oscillators[i].zosc.SetMode(hw.GetAdcValue(dpt::CV_3));
-        //oscillators[i].randdetune = hw.GetAdcValue(dpt::CV_5);
-        oscillators[i].envelope.SetTime(2, abs(hw.GetAdcValue(dpt::CV_2)));
-        oscillators[i].vibratooo.SetAmp(hw.GetAdcValue(dpt::CV_6) * 10.f);
-        oscillators[i].vibratooo.SetFreq(hw.GetAdcValue(dpt::CV_7) * 30.f);
-        fade = hw.GetAdcValue(dpt::CV_8);
+    for(int i = 0; i < MAX_VOICES; i++) {
+        oscillators[i].oscillator.SetPW(patch.GetAdcValue(dpt::CV_1));
+        oscillators[i].oscillator.SetWaveshape(patch.GetAdcValue(dpt::CV_2));
+        oscillators[i].zosc.SetShape(patch.GetAdcValue(dpt::CV_1));
+        oscillators[i].zosc.SetFormantFreq(patch.GetAdcValue(dpt::CV_2) * 1000.);
+        oscillators[i].zosc.SetMode(patch.GetAdcValue(dpt::CV_3));
+        oscillators[i].envelope.SetTime(2, abs(patch.GetAdcValue(dpt::CV_2)));
+        oscillators[i].vibratooo.SetAmp(patch.GetAdcValue(dpt::CV_6) * 10.f);
+        oscillators[i].vibratooo.SetFreq(patch.GetAdcValue(dpt::CV_7) * 30.f);
+        fade = patch.GetAdcValue(dpt::CV_8);
         oscillators[i].SetFade(fade);
     }
 
+    // rendering these
+    oscillators[4].Process();
+    oscillators[5].Process();
+    oscillators[6].Process();
+    oscillators[7].Process();
+
     for(size_t i = 0; i < size; i++)
     {
-        out[0][i] = (oscillators[0].Process() + oscillators[1].Process()) * 0.5;
-        out[1][i] = (oscillators[2].Process() + oscillators[3].Process()) * 0.5;
-        /*
-        out[1][i] = oscillators[1].Process() * -1;
-        out[0][i] = oscillators[2].Process() * -1;
-        out[1][i] = oscillators[3].Process();
-        out[0][i] = oscillators[4].Process() * -1;
-        out[1][i] = oscillators[5].Process();
-        */
+            out[0][i] = (oscillators[0].Process() + oscillators[1].Process()) * 0.5;
+            out[1][i] = (oscillators[2].Process() + oscillators[3].Process()) * 0.5;
     }
+}
+
+void dac7554handler(void *data) {
+    patch.WriteCvOutExp(
+        oscillators[4].last,
+        oscillators[5].last,
+        oscillators[6].last,
+        oscillators[7].last,
+        false);
 }
 
 int main(void)
 {
-    hw.Init();
-    hw.SetAudioSampleRate(48000);
-    hw.SetAudioBlockSize(48);
-    float samplerate = hw.AudioSampleRate();
+    float samplerate = 48000;
+    patch.Init();
+    patch.SetAudioSampleRate(samplerate);
+    patch.SetAudioBlockSize(1); // must be 1 to match main callback
 
-    for(int i = 0; i < 6; i++) {
-         oscillators[i].Init(samplerate * 2.f, i);
+    for(int i = 0; i < 8; i++) {
+         oscillators[i].Init(samplerate * 2, i);
     }
 
-    uint32_t now, dact, usbt, gatet;
-    now = dact = usbt = System::GetNow();
-    gatet             = now;
+    patch.StartAudio(AudioCallback);
+    patch.InitTimer(dac7554handler, nullptr);
 
-    hw.midi.StartReceive();
-    hw.StartAudio(AudioCallback);
+    patch.midi.StartReceive();
 
     while(1)
     {
-        hw.midi.Listen();
+        patch.midi.Listen();
 
-        while(hw.midi.HasEvents()) {
-            auto event = hw.midi.PopEvent();
+        while(patch.midi.HasEvents()) {
+            auto event = patch.midi.PopEvent();
 
             // Basic MIDI -> CV, and forwards note on/off to MIDI
             if(event.type  == MidiMessageType::NoteOn) {
                 auto e = event.AsNoteOn();
-                dsy_gpio_write(&hw.gate_out_1, 1);
-                hw.MIDISendNoteOn(e.channel, e.note, e.velocity);
-                hw.WriteCvOut(CV_OUT_1, mtocv(e.note), false);
+                dsy_gpio_write(&patch.gate_out_1, 1);
+                patch.MIDISendNoteOn(e.channel, e.note, e.velocity);
+                patch.WriteCvOut(CV_OUT_1, mtocv(e.note), false);
                 
                 if(e.channel == 0) {
-                    if(currVoice == 4) currVoice = 0;
                     oscillators[currVoice].TrigMidi(e.note, e.velocity);
-                    currVoice++;
+                    oscillators[currVoice+4].TrigMidi(e.note, e.velocity);
+                    if(++currVoice == 4) currVoice = 0;
                 }
             }
             else if(event.type  == MidiMessageType::NoteOff) {
                 auto e = event.AsNoteOff();
-                dsy_gpio_write(&hw.gate_out_1, 0);
-                hw.MIDISendNoteOff(e.channel, e.note, e.velocity);
+                dsy_gpio_write(&patch.gate_out_1, 0);
+                patch.MIDISendNoteOff(e.channel, e.note, e.velocity);
             }
             else if(event.type == MidiMessageType::ControlChange) {
                 auto e = event.AsControlChange();
-                hw.WriteCvOut(CV_OUT_2, ((float)e.value / 127.) * 5.f, false);
+                patch.WriteCvOut(CV_OUT_2, ((float)e.value / 127.) * 5.f, false);
             }
         } 
-        hw.Delay(10);
+        patch.Delay(10);
     }
 }
 
@@ -131,21 +138,12 @@ int main(void)
 // Interrupt for updating DAC7554
 /*
 extern "C" void TIM5_IRQHandler(void) {
-    hw.tim5.Instance->SR = 0;
 
-    hw.WriteCvOutExp(
-        oscillators[0].Process() * 5.,
-        oscillators[1].Process() * 5.,
-        oscillators[2].Process() * 5.,
-        oscillators[3].Process() * 5.,
-        false
-    );
-
-    //hw.WriteCvOut(1, oscillators[4].Process() * 5.f, false);
-    //hw.WriteCvOut(0, oscillators[5].Process() * 5.f, false);
+    //patch.WriteCvOut(1, oscillators[4].Process() * 5.f, false);
+    //patch.WriteCvOut(0, oscillators[5].Process() * 5.f, false);
     
-    if(!hw.dac_exp.lock) {
-        hw.dac_exp.WriteDac7554();
+    if(!patch.dac_exp.lock) {
+        patch.dac_exp.WriteDac7554();
     }
 }
 */
