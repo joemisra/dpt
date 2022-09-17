@@ -47,9 +47,13 @@ void AudioCallback(AudioHandle::InputBuffer  in,
         out[1][i] = in[1][i];
     }
 
-    hw.WriteCvOutExp(osc[0].Process() + 2047.f, osc[1].Process() + 2047.f, osc[2].Process() + 2047.f, osc[3].Process() + 2047.f, true);
-    hw.WriteCvOut(1, osc[4].Process() + 2047.f, true);
-    hw.WriteCvOut(2, osc[5].Process() + 2047.f, true);
+    /* These methods want 0-4095 if that last 'raw' parameter is true,
+       so the amplitude of all of these oscillators is set to 2048.f, and this is bipolar.
+       So we add 2048.f to bring it up.
+       */
+    hw.WriteCvOutExp(osc[0].Process() + 2048.f, osc[1].Process() + 2048.f, osc[2].Process() + 2048.f, osc[3].Process() + 2048.f, true);
+    hw.WriteCvOut(1, osc[4].Process() + 2048.f, true);
+    hw.WriteCvOut(2, osc[5].Process() + 2048.f, true);
 }
 void MIDISendNoteOn(uint8_t channel, uint8_t note, uint8_t velocity)
 {

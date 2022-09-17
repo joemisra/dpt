@@ -539,7 +539,7 @@ namespace dpt
     uint16_t DPT::VoltageToCodeExp(float input)
     {
         // Outputs are inverted, so have to flip the literal voltage
-        float pre = abs(((input + 7.f) / 14.f * 4095.f) - 4095.f);
+        float pre = DSY_CLAMP(abs(((input + 7.f) / 14.f * 4095.f) - 4095.f), 0, 4095);
 
         if(pre > 4095.f)
             pre = 4095.f;
@@ -554,10 +554,10 @@ namespace dpt
         uint16_t gogo[4];
 
         // Outputs are inverted, so have to flip the inputs 
-        gogo[0] = abs(raw ? (uint16_t) a - 4095 : VoltageToCodeExp(a));
-        gogo[1] = abs(raw ? (uint16_t) b - 4095 : VoltageToCodeExp(b));
-        gogo[2] = abs(raw ? (uint16_t) c - 4095 : VoltageToCodeExp(c));
-        gogo[3] = abs(raw ? (uint16_t) d - 4095 : VoltageToCodeExp(d));
+        gogo[0] = DSY_CLAMP(abs(raw ? (uint16_t) a - 4095 : VoltageToCodeExp(a)), 0, 4095);
+        gogo[1] = DSY_CLAMP(abs(raw ? (uint16_t) b - 4095 : VoltageToCodeExp(b)), 0, 4095);
+        gogo[2] = DSY_CLAMP(abs(raw ? (uint16_t) c - 4095 : VoltageToCodeExp(c)), 0, 4095);
+        gogo[3] = DSY_CLAMP(abs(raw ? (uint16_t) d - 4095 : VoltageToCodeExp(d)), 0, 4095);
 
         dac_exp.Write(gogo);
         dac_exp.WriteDac7554();
