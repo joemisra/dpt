@@ -12,6 +12,8 @@ Switch         button, toggle;
 FIL            file; /**< Can't be made on the stack (DTCMRAM) */
 FatFSInterface fsi;
 Oscillator osc[6];
+ReverbSc reverb;
+CrossFade cf;
 
 using MyOledDisplay = OledDisplay<SSD130xI2c128x32Driver>;
 MyOledDisplay         display;
@@ -30,21 +32,36 @@ void AudioCallback(AudioHandle::InputBuffer  in,
                    AudioHandle::OutputBuffer out,
                    size_t                    size)
 {
+
     hw.ProcessAllControls();
+    /*
+        CV 1    Oscillator Frequency
+        CV 2    Reverb Feedback (0 - 99%)
+        CV 3    Reverb Damping (0 - 24000hz)
+        CV 4    Wet/Dry Mix
+    */
 
     for(int i=0; i<6; i++) {
-        osc[i].SetFreq(hw.controls[CV_1].Value() * 100.f);
+        osc[i].SetFreq(hw.controls[CV_1].Value() * 99.f);
     }
 
-    button.Debounce();
-    toggle.Debounce();
+    reverb.SetFeedback(abs(hw.controls[CV_2].Value()));
+    reverb.SetLpFreq(abs(hw.controls[CV_3].Value()) * 24000.f);
 
-
+    cf.SetPos(abs(hw.controls[CV_4].Value()));
 
     for(size_t i = 0; i < size; i++)
     {
-        out[0][i] = in[0][i];
-        out[1][i] = in[1][i];
+        float wetl, wetr, dryl, dryr;
+
+        dryl = IN_L[i];
+        dryr = IN_R[i];
+        
+        /* Fill audio buffer here, please */
+        reverb.Process(dryl, dryr, &wetl, &wetr);
+
+        OUT_L[i] = cf.Process(dryl, wetl);
+        OUT_R[i] = cf.Process(dryr, wetr);
     }
 
     /* These methods want 0-4095 if that last 'raw' parameter is true,
@@ -55,6 +72,7 @@ void AudioCallback(AudioHandle::InputBuffer  in,
     hw.WriteCvOut(1, osc[4].Process() + 2048.f, true);
     hw.WriteCvOut(2, osc[5].Process() + 2048.f, true);
 }
+
 void MIDISendNoteOn(uint8_t channel, uint8_t note, uint8_t velocity)
 {
     uint8_t data[3] = {0};
@@ -79,19 +97,24 @@ void MIDISendNoteOff(uint8_t channel, uint8_t note, uint8_t velocity)
 
 int main(void)
 {
-    float samplerate = 96000;
+    float samplerate = 48000;
     hw.Init();
     hw.SetAudioSampleRate(samplerate);
+    hw.SetAudioBlockSize(48);
 
     /* Set up some basic oscillators to write to the internal/external 12-bit DACs */
 
     for(int i=0;i<6;i++) {
         osc[i].Init(samplerate);
-        osc[i].SetWaveform(i);
+        osc[i].SetWaveform(Oscillator::WAVE_SIN);
         osc[i].SetAmp(2048.f);
         osc[i].Reset(i * (1/6.f));
         osc[i].SetFreq(10.f);
     }
+
+    reverb.Init(samplerate);
+
+    cf.Init();
 
     SdmmcHandler::Config sd_config;
     SdmmcHandler         sdcard;
