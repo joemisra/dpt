@@ -1,6 +1,6 @@
 # dsp.coffee dpt - multifunction electron temple
 
-** DPT module/kit is currently available at https://dsp.coffee/. In stock as of 05/24/2022. **
+** Fully built DPT module is currently unavailable, populated boards + panels are though - currently available at https://dsp.coffee/. In stock as of 2/17/2023. **
 
 electrosmith daisy patch submodule based development platform
 
