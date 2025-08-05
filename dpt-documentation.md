@@ -103,9 +103,16 @@ Developed as an extension of the Daisy Patch platform, the DPT module provides a
 - **Toolchain**: ARM GCC Embedded
 
 ### Code Structure
+
+#### Basic Include Pattern
 ```cpp
-// Basic DPT initialization and usage
+// The DPT examples typically use this simpler include structure:
 #include "daisy_dpt.h"
+
+// For projects using DaisySP:
+#include "daisysp.h"
+
+// The DPT header likely includes all necessary Daisy components internally
 
 DPT dpt;
 
@@ -142,6 +149,106 @@ int main(void) {
         dpt.UpdateLEDs();
     }
 }
+```
+
+## Project Structure
+
+### Basic Project Layout
+```
+your_project/
+├── Makefile
+├── your_project.cpp
+├── lib/
+│   ├── daisy_dpt.h
+│   └── daisy_dpt.cpp
+├── libDaisy/           (submodule or symlink)
+└── DaisySP/            (submodule or symlink)
+```
+
+### Makefile Template
+```makefile
+# Project Name
+TARGET = your_project
+
+# Sources
+CPP_SOURCES = your_project.cpp lib/daisy_dpt.cpp
+
+# Library Locations
+LIBDAISY_DIR = ../../libDaisy
+DAISYSP_DIR = ../../DaisySP
+
+# Core
+SYSTEM_FILES_DIR = $(LIBDAISY_DIR)/core
+include $(SYSTEM_FILES_DIR)/Makefile
+```
+
+### Initialization Pattern
+```cpp
+// your_project.cpp
+#include "daisy_dpt.h"
+#include "daisysp.h"  // If using DaisySP
+
+DPT dpt;
+
+void AudioCallback(AudioHandle::InterleavingInputBuffer  in,
+                   AudioHandle::InterleavingOutputBuffer out,
+                   size_t size) {
+    // Audio processing here
+}
+
+int main(void) {
+    // Initialize hardware
+    dpt.Init();
+    
+    // Get sample rate for DSP initialization
+    float sample_rate = dpt.AudioSampleRate();
+    
+    // Initialize your DSP objects here
+    
+    // Configure and start audio
+    dpt.SetAudioBlockSize(48);  // Lower values = lower latency
+    dpt.StartAudio(AudioCallback);
+    
+    // Main loop for non-audio tasks
+    while(1) {
+        // Handle MIDI, UI updates, etc.
+        System::Delay(1);
+    }
+}
+```
+
+## Hardware Initialization Details
+
+### DPT Class Structure
+The DPT class extends DaisyPatchSM with additional hardware:
+
+```cpp
+class DPT : public DaisyPatchSM {
+public:
+    // Additional hardware
+    DAC7554 external_dac;
+    MidiUartHandler midi;
+    SdmmcHandler sdcard;
+    
+    // Extended GPIO
+    Switch gate_in[2];
+    GPIO gate_out[2];
+    
+    // Status LEDs
+    GPIO leds[6];
+    
+    void Init() {
+        // Base initialization
+        DaisyPatchSM::Init();
+        
+        // Configure additional hardware
+        InitDAC();
+        InitMidi();
+        InitGates();
+        InitLEDs();
+        InitSDCard();
+    }
+};
 ```
 
 ## Example Applications
@@ -235,7 +342,6 @@ int main(void) {
 ```cpp
 // cv_test.cpp - Advanced CV generation with DAC7554
 #include "daisy_dpt.h"
-#include <cmath>
 
 DPT dpt;
 
@@ -588,7 +694,6 @@ int main(void) {
 ```cpp
 // sd_test.cpp - SD card operations for data logging and preset storage
 #include "daisy_dpt.h"
-#include "fatfs.h"
 
 DPT dpt;
 
@@ -844,8 +949,6 @@ int main(void) {
 // full_integration.cpp - Complete synthesizer voice using all DPT features
 #include "daisy_dpt.h"
 #include "daisysp.h"
-
-using namespace daisysp;
 
 DPT dpt;
 
@@ -1298,7 +1401,509 @@ int main(void) {
 }
 ```
 
-## API Reference
+## DaisySP Integration
+
+### Commonly Used DaisySP Classes
+
+The DPT module works seamlessly with DaisySP, a comprehensive DSP library. Here are the most commonly used classes:
+
+#### Oscillators
+```cpp
+// Basic oscillator with multiple waveforms
+Oscillator osc;
+osc.Init(sample_rate);
+osc.SetWaveform(Oscillator::WAVE_SIN);  // Also: WAVE_TRI, WAVE_SAW, WAVE_SQUARE, WAVE_POLYBLEP_TRI, WAVE_POLYBLEP_SAW, WAVE_POLYBLEP_SQUARE
+osc.SetFreq(440.0f);
+osc.SetAmp(0.5f);
+float sample = osc.Process();
+
+// Variable shape oscillator
+VariableShapeOscillator variosc;
+variosc.Init(sample_rate);
+variosc.SetFreq(220.0f);
+variosc.SetPW(0.5f);      // Pulse width for square
+variosc.SetWaveshape(0.5f); // Morphs between waveforms
+float sample = variosc.Process();
+
+// FM operator
+Fm2 fm;
+fm.Init(sample_rate);
+fm.SetFrequency(440.0f);
+fm.SetRatio(2.0f);      // Carrier:modulator ratio
+fm.SetIndex(5.0f);      // Modulation index
+float sample = fm.Process();
+```
+
+#### Filters
+```cpp
+// Moog ladder filter
+MoogLadder moog;
+moog.Init(sample_rate);
+moog.SetFreq(1000.0f);   // Cutoff frequency
+moog.SetRes(0.7f);       // Resonance 0-1
+float filtered = moog.Process(input);
+
+// State variable filter
+Svf svf;
+svf.Init(sample_rate);
+svf.SetFreq(2000.0f);
+svf.SetRes(0.5f);
+svf.Process(input);
+float lp = svf.Low();    // Low pass output
+float hp = svf.High();   // High pass output
+float bp = svf.Band();   // Band pass output
+float notch = svf.Notch(); // Notch output
+
+// One-pole filters
+Tone tone;              // Low pass
+tone.Init(sample_rate);
+tone.SetFreq(1000.0f);
+float lp = tone.Process(input);
+
+ATone atone;            // High pass
+atone.Init(sample_rate);
+atone.SetFreq(100.0f);
+float hp = atone.Process(input);
+```
+
+#### Envelopes
+```cpp
+// ADSR envelope
+Adsr env;
+env.Init(sample_rate);
+env.SetTime(ADSR_SEG_ATTACK, 0.01f);
+env.SetTime(ADSR_SEG_DECAY, 0.1f);
+env.SetTime(ADSR_SEG_RELEASE, 0.5f);
+env.SetSustainLevel(0.7f);
+env.SetCurve(0.5f);     // Exponential curve
+env.Trigger();          // Start envelope
+env.Release();          // Release stage
+float level = env.Process(gate_high);
+
+// AD envelope
+AdEnv ad;
+ad.Init(sample_rate);
+ad.SetTime(ADENV_SEG_ATTACK, 0.001f);
+ad.SetTime(ADENV_SEG_DECAY, 0.2f);
+ad.SetCurve(0.0f);      // Linear
+ad.SetMax(1.0f);
+ad.SetMin(0.0f);
+ad.Trigger();
+float level = ad.Process();
+
+// Line generator
+Line line;
+line.Init(sample_rate);
+line.Start(0.0f, 1.0f, 0.5f); // Start, end, time
+float val = line.Process();
+bool finished = line.IsRunning();
+```
+
+#### Effects
+```cpp
+// Reverb
+ReverbSc reverb;
+reverb.Init(sample_rate);
+reverb.SetFeedback(0.85f);
+reverb.SetLpFreq(10000.0f);
+float wet_l, wet_r;
+reverb.Process(dry_l, dry_r, &wet_l, &wet_r);
+
+// Delay line
+DelayLine<float, 48000> delay;  // 1 second at 48kHz
+delay.Init();
+delay.SetDelay(24000);           // 0.5 seconds
+delay.Write(input);
+float delayed = delay.Read();
+
+// Chorus
+Chorus chorus;
+chorus.Init(sample_rate);
+chorus.SetLfoFreq(0.3f);
+chorus.SetLfoDepth(0.8f);
+chorus.SetDelay(0.75f);
+chorus.SetFeedback(0.2f);
+float wet = chorus.Process(dry);
+
+// Overdrive
+Overdrive drive;
+drive.Init();
+drive.SetDrive(0.5f);
+float driven = drive.Process(input);
+
+// Compressor
+Compressor comp;
+comp.Init(sample_rate);
+comp.SetThreshold(-20.0f);  // dB
+comp.SetRatio(4.0f);        // 4:1
+comp.SetAttack(0.001f);
+comp.SetRelease(0.1f);
+comp.SetMakeup(1.0f);
+float compressed = comp.Process(input);
+```
+
+#### Utilities
+```cpp
+// Metro (clock/trigger generator)
+Metro metro;
+metro.Init(1.0f, sample_rate);  // 1 Hz
+if(metro.Process()) {
+    // Trigger event
+}
+
+// Phasor (ramp generator)
+Phasor phasor;
+phasor.Init(sample_rate);
+phasor.SetFreq(0.25f);          // 0.25 Hz = 4 second ramp
+float phase = phasor.Process(); // 0-1 ramp
+
+// Port (parameter smoothing)
+Port port;
+port.Init(sample_rate, 0.05f);  // 50ms smoothing time
+float smoothed = port.Process(target_value);
+
+// Limiter
+Limiter limiter;
+limiter.Init();
+limiter.SetThresh(-6.0f);       // dB
+limiter.SetMakeup(6.0f);        // dB
+limiter.ProcessBlock(buffer, size, 0.01f);
+
+// DC block
+DcBlock dcblock;
+dcblock.Init(sample_rate);
+float dc_removed = dcblock.Process(input);
+```
+
+#### Synthesis Building Blocks
+```cpp
+// Harmonic oscillator (additive synthesis)
+HarmOscillator<16> harm;  // 16 harmonics
+harm.Init(sample_rate);
+harm.SetFirstHarmIdx(1);   // Start at fundamental
+harm.SetFreq(220.0f);
+for(int i = 0; i < 16; i++) {
+    harm.SetSingleAmp(1.0f / (i + 1), i);  // 1/n amplitude
+}
+float sample = harm.Process();
+
+// Grainlet (granular synthesis)
+GrainletOscillator grainlet;
+grainlet.Init(sample_rate);
+grainlet.SetFreq(440.0f);
+grainlet.SetFormantFreq(2000.0f);
+grainlet.SetShape(0.5f);
+grainlet.SetBleed(0.1f);
+float sample = grainlet.Process();
+
+// Modal voice (physical modeling)
+ModalVoice modal;
+modal.Init(sample_rate);
+modal.SetFreq(440.0f);
+modal.SetStructure(0.7f);
+modal.SetBrightness(0.8f);
+modal.SetDamping(0.9f);
+modal.Trig();
+float sample = modal.Process();
+
+// String voice (Karplus-Strong)
+StringVoice string;
+string.Init(sample_rate);
+string.SetFreq(110.0f);     // A2
+string.SetBrightness(0.5f);
+string.SetDamping(0.8f);
+string.SetNonLinearity(0.1f);
+string.Trig();
+float sample = string.Process(trigger);
+```
+
+### Example: Complete Synth Voice with DaisySP
+```cpp
+// complete_voice.cpp - Full synth voice using DaisySP components
+#include "daisy_dpt.h"
+#include "daisysp.h"
+
+DPT dpt;
+
+class SynthVoice {
+private:
+    // Sound generators
+    VariableShapeOscillator osc1, osc2;
+    WhiteNoise noise;
+    
+    // Filters
+    MoogLadder filter;
+    Svf hpf;  // Pre-filter high pass
+    
+    // Envelopes
+    Adsr amp_env, filter_env, mod_env;
+    
+    // LFOs
+    Oscillator lfo1, lfo2;
+    
+    // Effects
+    Chorus chorus;
+    Overdrive drive;
+    
+    // Utilities
+    Port glide;
+    DcBlock dc_block;
+    
+    // Parameters
+    float frequency = 440.0f;
+    float target_freq = 440.0f;
+    
+public:
+    void Init(float sample_rate) {
+        // Oscillators
+        osc1.Init(sample_rate);
+        osc2.Init(sample_rate);
+        noise.Init();
+        
+        // Filters
+        filter.Init(sample_rate);
+        hpf.Init(sample_rate);
+        hpf.SetFreq(20.0f);  // Remove DC
+        hpf.SetRes(0.0f);
+        
+        // Envelopes - different curves for each
+        amp_env.Init(sample_rate);
+        amp_env.SetCurve(-2.0f);  // Exponential
+        
+        filter_env.Init(sample_rate);
+        filter_env.SetCurve(2.0f);  // Logarithmic
+        
+        mod_env.Init(sample_rate);
+        mod_env.SetCurve(0.0f);   // Linear
+        
+        // LFOs at different rates
+        lfo1.Init(sample_rate);
+        lfo1.SetWaveform(Oscillator::WAVE_TRI);
+        lfo1.SetFreq(0.3f);
+        
+        lfo2.Init(sample_rate);
+        lfo2.SetWaveform(Oscillator::WAVE_SIN);
+        lfo2.SetFreq(4.0f);
+        
+        // Effects
+        chorus.Init(sample_rate);
+        drive.Init();
+        
+        // Utilities
+        glide.Init(sample_rate, 0.05f);  // 50ms glide
+        dc_block.Init(sample_rate);
+    }
+    
+    void NoteOn(float freq, float velocity) {
+        target_freq = freq;
+        amp_env.Trigger();
+        filter_env.Trigger();
+        mod_env.Trigger();
+    }
+    
+    void NoteOff() {
+        amp_env.Release();
+        filter_env.Release();
+        mod_env.Release();
+    }
+    
+    float Process() {
+        // Glide to target frequency
+        frequency = glide.Process(target_freq);
+        
+        // LFO processing
+        float lfo1_out = lfo1.Process();
+        float lfo2_out = lfo2.Process();
+        
+        // Vibrato from LFO2
+        float vibrato_freq = frequency * (1.0f + lfo2_out * 0.01f);
+        
+        // Set oscillator frequencies with slight detune
+        osc1.SetFreq(vibrato_freq);
+        osc2.SetFreq(vibrato_freq * 1.004f);  // Slight detune
+        
+        // PWM from LFO1
+        osc1.SetPW(0.5f + lfo1_out * 0.45f);
+        osc2.SetPW(0.5f - lfo1_out * 0.45f);
+        
+        // Generate oscillators
+        float osc_mix = osc1.Process() + osc2.Process() * 0.7f;
+        
+        // Add noise
+        float noise_level = mod_env.Process() * 0.1f;
+        osc_mix += noise.Process() * noise_level;
+        
+        // Pre-filter high pass
+        hpf.Process(osc_mix);
+        osc_mix = hpf.High();
+        
+        // Filter with envelope
+        float filter_env_amt = filter_env.Process();
+        float filter_freq = 200.0f + filter_env_amt * 3000.0f;
+        filter_freq += lfo1_out * 200.0f;  // LFO modulation
+        
+        filter.SetFreq(filter_freq);
+        float filtered = filter.Process(osc_mix);
+        
+        // Soft clipping
+        filtered = drive.Process(filtered * 0.7f);
+        
+        // Apply amplitude envelope
+        float output = filtered * amp_env.Process();
+        
+        // Chorus for width
+        output = chorus.Process(output);
+        
+        // DC blocking
+        output = dc_block.Process(output);
+        
+        return output * 0.5f;  // Scale output
+    }
+    
+    // Parameter setters
+    void SetFilterCutoff(float freq) { 
+        filter.SetFreq(freq); 
+    }
+    
+    void SetFilterResonance(float res) { 
+        filter.SetRes(res); 
+    }
+    
+    void SetOscShape(float shape) {
+        osc1.SetWaveshape(shape);
+        osc2.SetWaveshape(1.0f - shape);
+    }
+    
+    void SetAttack(float time) {
+        amp_env.SetTime(ADSR_SEG_ATTACK, time);
+        filter_env.SetTime(ADSR_SEG_ATTACK, time * 0.8f);
+    }
+    
+    void SetDecay(float time) {
+        amp_env.SetTime(ADSR_SEG_DECAY, time);
+        filter_env.SetTime(ADSR_SEG_DECAY, time * 1.2f);
+    }
+    
+    void SetSustain(float level) {
+        amp_env.SetSustainLevel(level);
+        filter_env.SetSustainLevel(level * 0.5f);
+    }
+    
+    void SetRelease(float time) {
+        amp_env.SetTime(ADSR_SEG_RELEASE, time);
+        filter_env.SetTime(ADSR_SEG_RELEASE, time * 0.7f);
+    }
+};
+
+// Polyphonic synthesizer with 8 voices
+static const int NUM_VOICES = 8;
+SynthVoice voices[NUM_VOICES];
+int next_voice = 0;
+
+// Global reverb send
+ReverbSc reverb;
+
+void AudioCallback(AudioHandle::InterleavingInputBuffer  in,
+                   AudioHandle::InterleavingOutputBuffer out,
+                   size_t size) {
+    // Read controls
+    float cutoff = dpt.ReadPot(0) * 5000.0f;
+    float resonance = dpt.ReadPot(1);
+    float osc_shape = dpt.ReadPot(2);
+    float attack = dpt.ReadPot(3) * 2.0f;
+    float decay = dpt.ReadPot(4) * 2.0f;
+    float sustain = dpt.ReadPot(5);
+    float release = dpt.ReadPot(6) * 5.0f;
+    float reverb_mix = dpt.ReadPot(7);
+    
+    for(size_t i = 0; i < size; i += 2) {
+        float voice_sum = 0.0f;
+        
+        // Process all voices
+        for(int v = 0; v < NUM_VOICES; v++) {
+            voices[v].SetFilterCutoff(cutoff);
+            voices[v].SetFilterResonance(resonance);
+            voices[v].SetOscShape(osc_shape);
+            voices[v].SetAttack(attack);
+            voices[v].SetDecay(decay);
+            voices[v].SetSustain(sustain);
+            voices[v].SetRelease(release);
+            
+            voice_sum += voices[v].Process();
+        }
+        
+        // Scale for polyphony
+        voice_sum *= 0.125f;
+        
+        // Apply reverb
+        float wet_l, wet_r;
+        reverb.Process(voice_sum, voice_sum, &wet_l, &wet_r);
+        
+        // Mix dry and wet
+        float final_l = voice_sum + wet_l * reverb_mix;
+        float final_r = voice_sum + wet_r * reverb_mix;
+        
+        out[i] = final_l;
+        out[i+1] = final_r;
+    }
+}
+
+int main(void) {
+    // Hardware init
+    dpt.Init();
+    float sample_rate = dpt.AudioSampleRate();
+    
+    // Initialize all voices
+    for(int i = 0; i < NUM_VOICES; i++) {
+        voices[i].Init(sample_rate);
+    }
+    
+    // Initialize reverb
+    reverb.Init(sample_rate);
+    reverb.SetFeedback(0.87f);
+    reverb.SetLpFreq(8000.0f);
+    
+    // MIDI setup
+    dpt.midi.Init();
+    dpt.midi.StartReceive();
+    
+    // Start audio
+    dpt.SetAudioBlockSize(48);
+    dpt.StartAudio(AudioCallback);
+    
+    // Main loop
+    while(1) {
+        // Process MIDI
+        dpt.midi.Listen();
+        while(dpt.midi.HasEvents()) {
+            MidiEvent e = dpt.midi.PopEvent();
+            
+            if(e.type == NoteOn && e.data[1] > 0) {
+                // Note to frequency
+                float freq = 440.0f * powf(2.0f, (e.data[0] - 69) / 12.0f);
+                
+                // Trigger next voice (round-robin)
+                voices[next_voice].NoteOn(freq, e.data[1] / 127.0f);
+                next_voice = (next_voice + 1) % NUM_VOICES;
+                
+                // Visual feedback
+                dpt.SetGate(0, true);
+                dpt.SetLED(next_voice % 4, true);
+            }
+            else if(e.type == NoteOff || (e.type == NoteOn && e.data[1] == 0)) {
+                // Simple note off - in practice you'd track which voice plays which note
+                dpt.SetGate(0, false);
+            }
+        }
+        
+        // Update LEDs
+        dpt.UpdateLEDs();
+        System::Delay(1);
+    }
+}
+```
+
+## DaisySP Integration
 
 ### Core Functions
 
