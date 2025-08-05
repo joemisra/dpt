@@ -1971,16 +1971,6 @@ FatFS SDFatFS;                       // FatFS instance
 - **SPI**: Connected to DAC7554 and SD card
 - **UART**: MIDI I/O
 
-#### Expansion Header
-- Pin 1-2: +5V Power
-- Pin 3-4: +3.3V Power
-- Pin 5-6: GND
-- Pin 7-8: SPI (CLK, MOSI, MISO, CS)
-- Pin 9-10: I2C (SDA, SCL)
-- Pin 11-12: UART (TX, RX)
-- Pin 13-14: USB (D+, D-)
-- Pin 15-16: Reserved
-
 ## Development Guidelines
 
 ### Best Practices
