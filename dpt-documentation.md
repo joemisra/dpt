@@ -1,3 +1,5 @@
+# WORK IN PROGRESS, CLAUDE OPUS INVOLVED
+
 # DPT (Daisy Patch Toolkit) Module Documentation
 
 ## Overview
